@@ -18,26 +18,31 @@ public class TatooineWallet {
     NetworkParameters params = TestNet3Params.get();
     String filePrefix = "tatooine-faucet-testnet";
 
-    public void initializeWallet() throws UnreadableWalletException {
+    public void initializeWallet(Boolean isNewWallet) throws UnreadableWalletException {
 
         BriefLogFormatter.init();
 
-        String mnemonic = System.getenv("TATOOINE_MNEMONIC");
-        System.out.println(mnemonic);
-        String passphrase = "";
-        Long creationTime = 1_615_000_000L;
-               
-        DeterministicSeed seed = new DeterministicSeed(mnemonic, null, passphrase, creationTime);
-        
-        // trying to implement a BIP84 compatible wallet but not working for now
-        // problem is with the `structure` parameter being of the wrong type
-        // this.kit = new WalletAppKit(params, Script.ScriptType.P2WPKH, structure, new File("."), filePrefix).restoreWalletFromSeed(seed);
-        // this.kit = new WalletAppKit(params, Script.ScriptType.P2WPKH, new KeyChainGroupStructureTatooine(), new File("."), filePrefix).restoreWalletFromSeed(seed);
+        if (isNewWallet == true) {
+            String mnemonic = System.getenv("TATOOINE_MNEMONIC");
+            System.out.println(mnemonic);
+            String passphrase = "";
+            Long creationTime = 1_615_000_000L;
 
-        // the path created by default is m/1h/0/*
-        this.kit = new WalletAppKit(params, Script.ScriptType.P2WPKH, null, new File("."), filePrefix).restoreWalletFromSeed(seed);
-        // this.kit = new WalletAppKit(params, Script.ScriptType.P2WPKH, KeyChainGroupStructure.DEFAULT, new File("."), filePrefix).restoreWalletFromSeed(seed);
-        // this.kit = new WalletAppKit(params, new File("."), filePrefix).restoreWalletFromSeed(seed);
+            DeterministicSeed seed = new DeterministicSeed(mnemonic, null, passphrase, creationTime);
+
+            // trying to implement a BIP84 compatible wallet but not working for now
+            // problem is with the `structure` parameter being of the wrong type
+            // this.kit = new WalletAppKit(params, Script.ScriptType.P2WPKH, structure, new File("."), filePrefix).restoreWalletFromSeed(seed);
+            // this.kit = new WalletAppKit(params, Script.ScriptType.P2WPKH, new KeyChainGroupStructureTatooine(), new File("."), filePrefix).restoreWalletFromSeed(seed);
+
+            // the path created by default is m/1h/0/*
+            this.kit = new WalletAppKit(params, Script.ScriptType.P2WPKH, null, new File("."), filePrefix).restoreWalletFromSeed(seed);
+            // this.kit = new WalletAppKit(params, Script.ScriptType.P2WPKH, KeyChainGroupStructure.DEFAULT, new File("."), filePrefix).restoreWalletFromSeed(seed);
+            // this.kit = new WalletAppKit(params, new File("."), filePrefix).restoreWalletFromSeed(seed);
+        } else {
+            this.kit = new WalletAppKit(params, Script.ScriptType.P2WPKH, null, new File("."), filePrefix);
+        }
+
         kit.startAsync();
         kit.awaitRunning();
 
@@ -45,8 +50,14 @@ public class TatooineWallet {
         System.out.println("\n\n\n---\n\n\nWallet is initialized\n\n\n---\n\n\n");
     }
 
-    public void helloWallet() {
-        System.out.println("This wallet is alive and well");
+    public void helloWallet(Boolean isNewWallet) {
+        if (isNewWallet == true) {
+            System.out.println("This new wallet is alive and well");
+            System.out.println(isNewWallet);
+        } else {
+            System.out.println("This old wallet is alive and well");
+            System.out.println(isNewWallet);
+        }
         String mnemonic = System.getenv("TATOOINE_MNEMONIC");
         System.out.println("mnemonic is :" + mnemonic);
     }

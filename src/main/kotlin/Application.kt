@@ -18,12 +18,13 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 @kotlin.jvm.JvmOverloads
 fun Application.module(testing: Boolean = false) {
 
+    val isNewWallet: Boolean = environment.config.property("NEW_WALLET")?.toString().toBoolean() ?: true
     val tatooineWallet: TatooineWallet = TatooineWallet()
-    tatooineWallet.initializeWallet()
+    // tatooineWallet.initializeWallet(isNewWallet)
 
     routing {
         get("/") {
-            tatooineWallet.helloWallet()
+            tatooineWallet.helloWallet(isNewWallet)
             call.respondText("Do. Or do not. There is no try.", ContentType.Text.Plain)
         }
 
