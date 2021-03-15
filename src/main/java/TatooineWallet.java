@@ -3,16 +3,12 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the ./LICENSE file.
  */
 
-import org.bitcoinj.core.Coin;
-import org.bitcoinj.core.NetworkParameters;
+import org.bitcoinj.core.*;
 import org.bitcoinj.kits.WalletAppKit;
 import org.bitcoinj.params.TestNet3Params;
 import org.bitcoinj.script.Script;
 import org.bitcoinj.utils.BriefLogFormatter;
-import org.bitcoinj.wallet.DeterministicKeyChain;
-import org.bitcoinj.wallet.DeterministicSeed;
-import org.bitcoinj.wallet.KeyChainGroupStructure;
-import org.bitcoinj.wallet.UnreadableWalletException;
+import org.bitcoinj.wallet.*;
 
 import java.io.File;
 
@@ -64,5 +60,21 @@ public class TatooineWallet {
     public Long getBalance() {
         Coin balance = kit.wallet().getBalance();
         return balance.value;
+    }
+
+    public String sendTo(String address) throws InsufficientMoneyException {
+        Address recipientAddress = SegwitAddress.fromBech32(null, address);
+        SendRequest sendRequest = SendRequest.to(recipientAddress, Coin.valueOf(1200));
+        sendRequest.feePerKb = Coin.valueOf(200);
+
+        System.out.println("\n\n\n---\n\n\n---\n\n\n---\n\n\n");
+        System.out.println("address: " + recipientAddress.toString());
+        System.out.println("send request: " + sendRequest);
+        System.out.println("\n\n\n---\n\n\n---\n\n\n---\n\n\n");
+
+        Wallet.SendResult result = kit.wallet().sendCoins(sendRequest);
+        System.out.println("\n\n\n---\n\n\nCoins sent, txid is: " + result.tx.getTxId() + "\n\n\n---\n\n\n");
+
+        return result.tx.getTxId().toString();
     }
 }

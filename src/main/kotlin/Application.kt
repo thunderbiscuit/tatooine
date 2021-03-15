@@ -41,7 +41,8 @@ fun Application.module(testing: Boolean = false) {
 
         post("/sendcoins") {
             val address: String = call.receive<String>()
-            call.respondText("Sending coins to $address", ContentType.Text.Plain)
+            val txid = tatooineWallet.sendTo(address)
+            call.respondText("Sent coins to $address\ntxid: $txid", ContentType.Text.Plain)
         }
     }
 }
