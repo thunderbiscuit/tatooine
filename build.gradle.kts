@@ -27,6 +27,12 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
     implementation("io.ktor:ktor-server-netty:$ktor_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
+
+    // bitcoin
+    implementation("org.bitcoinj:bitcoinj-core:0.15.10")
+    implementation("com.google.guava:guava:30.1-jre")
+
+    // tests
     testImplementation("io.ktor:ktor-server-tests:$ktor_version")
 }
 

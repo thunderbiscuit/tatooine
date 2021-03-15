@@ -19,11 +19,24 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 fun Application.module(testing: Boolean = false) {
 
     val tatooineWallet: TatooineWallet = TatooineWallet()
+    tatooineWallet.initializeWallet()
 
     routing {
         get("/") {
             tatooineWallet.helloWallet()
             call.respondText("Do. Or do not. There is no try.", ContentType.Text.Plain)
         }
+
+        // for testing purposes only, will remove later
+        get("/newaddress") {
+           val newAddress = tatooineWallet.generateNewAddress()
+           call.respondText("Load wallet by sending testnet coins to $newAddress", ContentType.Text.Plain)
+        }
+
+        // for testing purposes only, will remove later
+        get("/getbalance") {
+           val balance: String = tatooineWallet.getBalance().toString()
+           call.respondText("Balance is $balance", ContentType.Text.Plain)
+       }
     }
 }
