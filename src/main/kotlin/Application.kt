@@ -27,16 +27,21 @@ fun Application.module(testing: Boolean = false) {
             call.respondText("Do. Or do not. There is no try.", ContentType.Text.Plain)
         }
 
-        // for testing purposes only, will remove later
+        // for testing purposes only, will remove
         get("/newaddress") {
            val newAddress = tatooineWallet.generateNewAddress()
            call.respondText("Load wallet by sending testnet coins to $newAddress", ContentType.Text.Plain)
         }
 
-        // for testing purposes only, will remove later
+        // for testing purposes only, will remove
         get("/getbalance") {
            val balance: String = tatooineWallet.getBalance().toString()
            call.respondText("Balance is $balance", ContentType.Text.Plain)
        }
+
+        post("/sendcoins") {
+            val address: String = call.receive<String>()
+            call.respondText("Sending coins to $address", ContentType.Text.Plain)
+        }
     }
 }

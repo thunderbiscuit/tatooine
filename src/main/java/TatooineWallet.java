@@ -38,7 +38,7 @@ public class TatooineWallet {
         // this.kit = new WalletAppKit(params, Script.ScriptType.P2WPKH, structure, new File("."), filePrefix).restoreWalletFromSeed(seed);
         // this.kit = new WalletAppKit(params, Script.ScriptType.P2WPKH, new KeyChainGroupStructureTatooine(), new File("."), filePrefix).restoreWalletFromSeed(seed);
 
-        // what is the derivation path? Doesn't match anything I can find
+        // the path created by default is m/1h/0/*
         this.kit = new WalletAppKit(params, Script.ScriptType.P2WPKH, null, new File("."), filePrefix).restoreWalletFromSeed(seed);
         // this.kit = new WalletAppKit(params, Script.ScriptType.P2WPKH, KeyChainGroupStructure.DEFAULT, new File("."), filePrefix).restoreWalletFromSeed(seed);
         // this.kit = new WalletAppKit(params, new File("."), filePrefix).restoreWalletFromSeed(seed);
