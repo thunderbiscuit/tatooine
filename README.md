@@ -8,7 +8,7 @@ Tatooine is a Ktor server that builds into a [Fat JAR](https://ktor.io/docs/fatj
 
 You start the faucet using the jar file and providing the `NEW_WALLET` command line parameter (`true/false`) to tell Tatooine whether the wallet needs to be recovered from scratch or if there is already an existing and valid `.wallet` file in the directory (this is not necessary but saves time on startup).
 ```shell
-java -jar tatooine-0.0.1-all.jar -P:NEW_WALLET=false
+java -jar tatooine-0.0.1-all.jar -P:WALLET_ALREADY_SYNCED=false
 ```
 
 ## Using the faucet

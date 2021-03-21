@@ -7,6 +7,7 @@ package com.goldenraven
 
 import TatooineWallet
 import io.ktor.application.*
+import io.ktor.auth.*
 import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
@@ -21,8 +22,37 @@ fun Application.module(testing: Boolean = false) {
     val needsFullSync: Boolean = environment.config.propertyOrNull("WALLET_ALREADY_SYNCED")?.getString().toBoolean().not()
     println("Wallet requires full sync: $needsFullSync")
 
+    val apiPassword: String = System.getenv("API_PASSWORD")
+    println(apiPassword)
+
     val tatooineWallet: TatooineWallet = TatooineWallet()
-    tatooineWallet.initializeWallet(needsFullSync)
+    // tatooineWallet.initializeWallet(needsFullSync)
+
+    install(Authentication) {
+        basic(name = "padawan-auth-username") {
+            realm = "Ktor Server"
+            validate { credentials ->
+                if (credentials.name == credentials.password) {
+                    UserIdPrincipal(credentials.name)
+                } else {
+                    null
+                }
+            }
+        }
+        basic(name = "padawan-password") {
+            realm = "Ktor Server"
+            validate { credentials ->
+                println(credentials)
+                // val apiPassword = System.getenv("API_PASSWORD")
+                // println(apiPassword)
+                if (credentials.password == apiPassword) {
+                    UserIdPrincipal(credentials.name)
+                } else {
+                    null
+                }
+            }
+        }
+    }
 
     routing {
         get("/") {
@@ -46,6 +76,18 @@ fun Application.module(testing: Boolean = false) {
             val address: String = call.receive<String>()
             val txid = tatooineWallet.sendTo(address)
             call.respondText("Sent coins to $address\ntxid: $txid", ContentType.Text.Plain)
+        }
+
+        authenticate("padawan-auth-username") {
+            get("/coolapplications") {
+                call.respondText("You must be really cool if you are here.", ContentType.Text.Plain)
+            }
+        }
+
+        authenticate("padawan-password") {
+            get("/passwordrequired") {
+                call.respondText("Welcome to a password protected route", ContentType.Text.Plain)
+            }
         }
     }
 }
