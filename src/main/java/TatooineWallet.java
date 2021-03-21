@@ -18,11 +18,11 @@ public class TatooineWallet {
     NetworkParameters params = TestNet3Params.get();
     String filePrefix = "tatooine-faucet-testnet";
 
-    public void initializeWallet(Boolean isNewWallet) throws UnreadableWalletException {
+    public void initializeWallet(Boolean needsFullSync) throws UnreadableWalletException {
 
         BriefLogFormatter.init();
 
-        if (isNewWallet == true) {
+        if (needsFullSync == true) {
             String mnemonic = System.getenv("TATOOINE_MNEMONIC");
             System.out.println(mnemonic);
             String passphrase = "";
@@ -36,15 +36,15 @@ public class TatooineWallet {
             // this.kit = new WalletAppKit(params, Script.ScriptType.P2WPKH, new KeyChainGroupStructureTatooine(), new File("."), filePrefix).restoreWalletFromSeed(seed);
 
             // the path created by default is m/1h/0/*
-            this.kit = new WalletAppKit(params, Script.ScriptType.P2WPKH, null, new File("."), filePrefix).restoreWalletFromSeed(seed);
+            this.kit = new WalletAppKit(params, Script.ScriptType.P2WPKH, null, new File("./walletdata"), filePrefix).restoreWalletFromSeed(seed);
             // this.kit = new WalletAppKit(params, Script.ScriptType.P2WPKH, KeyChainGroupStructure.DEFAULT, new File("."), filePrefix).restoreWalletFromSeed(seed);
             // this.kit = new WalletAppKit(params, new File("."), filePrefix).restoreWalletFromSeed(seed);
         } else {
-            this.kit = new WalletAppKit(params, Script.ScriptType.P2WPKH, null, new File("."), filePrefix);
+            this.kit = new WalletAppKit(params, Script.ScriptType.P2WPKH, null, new File("./walletdata"), filePrefix);
         }
 
         kit.startAsync();
-        kit.awaitRunning();
+//        kit.awaitRunning();
 
         // it's not easy to find print statements in the sea of bitcoin logs
         System.out.println("\n\n\n---\n\n\nWallet is initialized\n\n\n---\n\n\n");
@@ -53,10 +53,8 @@ public class TatooineWallet {
     public void helloWallet(Boolean isNewWallet) {
         if (isNewWallet == true) {
             System.out.println("This new wallet is alive and well");
-            System.out.println(isNewWallet);
         } else {
             System.out.println("This old wallet is alive and well");
-            System.out.println(isNewWallet);
         }
         String mnemonic = System.getenv("TATOOINE_MNEMONIC");
         System.out.println("mnemonic is :" + mnemonic);

@@ -18,13 +18,15 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 @kotlin.jvm.JvmOverloads
 fun Application.module(testing: Boolean = false) {
 
-    val isNewWallet: Boolean = environment.config.property("NEW_WALLET")?.toString().toBoolean() ?: true
+    val needsFullSync: Boolean = environment.config.propertyOrNull("WALLET_ALREADY_SYNCED")?.getString().toBoolean().not()
+    println("Wallet requires full sync: $needsFullSync")
+
     val tatooineWallet: TatooineWallet = TatooineWallet()
-    // tatooineWallet.initializeWallet(isNewWallet)
+    tatooineWallet.initializeWallet(needsFullSync)
 
     routing {
         get("/") {
-            tatooineWallet.helloWallet(isNewWallet)
+            tatooineWallet.helloWallet(needsFullSync)
             call.respondText("Do. Or do not. There is no try.", ContentType.Text.Plain)
         }
 
