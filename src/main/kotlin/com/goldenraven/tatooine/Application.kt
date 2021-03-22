@@ -3,9 +3,9 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the ./LICENSE file.
  */
  
-package com.goldenraven
+package com.goldenraven.tatooine
 
-import TatooineWallet
+import com.goldenraven.tatooine.TatooineWallet
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.http.*
