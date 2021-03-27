@@ -20,11 +20,11 @@ public class TatooineWallet {
     NetworkParameters params = TestNet3Params.get();
     String filePrefix = "tatooine-faucet-testnet";
 
-    public void initializeWallet(Boolean needsFullSync) throws UnreadableWalletException {
+    public void initializeWallet(Boolean alreadySynced) throws UnreadableWalletException {
 
         BriefLogFormatter.init();
 
-        if (needsFullSync == true) {
+        if (alreadySynced == false) {
             String mnemonic = System.getenv("TATOOINE_MNEMONIC");
             System.out.println(mnemonic);
             String passphrase = "";
@@ -52,8 +52,8 @@ public class TatooineWallet {
         System.out.println("\n\n\n---\n\n\nWallet is initialized\n\n\n---\n\n\n");
     }
 
-    public void helloWallet(Boolean isNewWallet) {
-        if (isNewWallet == true) {
+    public void helloWallet(Boolean alreadySynced) {
+        if (alreadySynced == false) {
             System.out.println("This new wallet is alive and well");
         } else {
             System.out.println("This old wallet is alive and well");

@@ -19,13 +19,13 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 @kotlin.jvm.JvmOverloads
 fun Application.module(testing: Boolean = false) {
 
-    val needsFullSync: Boolean = environment.config.propertyOrNull("WALLET_ALREADY_SYNCED")?.getString().toBoolean().not()
-    println("Wallet requires full sync: $needsFullSync")
+    val alreadySynced: Boolean = environment.config.property("wallet.alreadySynced").getString().toBoolean()
+    println("Wallet is already synced: $alreadySynced")
 
     val apiPassword: String = System.getenv("API_PASSWORD")
 
     val tatooineWallet: TatooineWallet = TatooineWallet()
-    // tatooineWallet.initializeWallet(needsFullSync)
+    tatooineWallet.initializeWallet(alreadySynced)
 
     install(Authentication) {
         basic(name = "padawan-password") {
@@ -42,8 +42,9 @@ fun Application.module(testing: Boolean = false) {
     }
 
     routing {
+
         get("/") {
-            tatooineWallet.helloWallet(needsFullSync)
+            tatooineWallet.helloWallet(alreadySynced)
             call.respondText("Do. Or do not. There is no try.", ContentType.Text.Plain)
         }
 
