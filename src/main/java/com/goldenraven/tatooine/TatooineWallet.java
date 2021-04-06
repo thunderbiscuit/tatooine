@@ -19,18 +19,21 @@ public class TatooineWallet {
     WalletAppKit kit;
     NetworkParameters params = TestNet3Params.get();
     String filePrefix = "tatooine-faucet-testnet";
+    String mnemonic;
 
-    public void initializeWallet(Boolean alreadySynced) throws UnreadableWalletException {
+    public void initializeWallet(Boolean alreadySynced, String mnemonicPhrase) throws UnreadableWalletException {
 
-        BriefLogFormatter.init();
+        this.mnemonic = mnemonicPhrase;
+        // BriefLogFormatter.init();
+        BriefLogFormatter.initWithSilentBitcoinJ();
 
         if (alreadySynced == false) {
-            String mnemonic = System.getenv("TATOOINE_MNEMONIC");
-            System.out.println(mnemonic);
+//            String mnemonic = System.getenv("TATOOINE_MNEMONIC");
+            System.out.println(this.mnemonic);
             String passphrase = "";
             Long creationTime = 1_615_000_000L;
 
-            DeterministicSeed seed = new DeterministicSeed(mnemonic, null, passphrase, creationTime);
+            DeterministicSeed seed = new DeterministicSeed(this.mnemonic, null, passphrase, creationTime);
 
             // trying to implement a BIP84 compatible wallet but not working for now
             // problem is with the `structure` parameter being of the wrong type
@@ -46,7 +49,7 @@ public class TatooineWallet {
         }
 
         kit.startAsync();
-//        kit.awaitRunning();
+        kit.awaitRunning();
 
         // it's not easy to find print statements in the sea of bitcoin logs
         System.out.println("\n\n\n---\n\n\nWallet is initialized\n\n\n---\n\n\n");
@@ -58,8 +61,8 @@ public class TatooineWallet {
         } else {
             System.out.println("This old wallet is alive and well");
         }
-        String mnemonic = System.getenv("TATOOINE_MNEMONIC");
-        System.out.println("mnemonic is :" + mnemonic);
+//        String mnemonic = System.getenv("TATOOINE_MNEMONIC");
+        System.out.println("mnemonic is :" + this.mnemonic);
     }
 
     public String generateNewAddress() {
