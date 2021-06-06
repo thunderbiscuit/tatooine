@@ -22,13 +22,14 @@ fun Application.module(testing: Boolean = false) {
     val alreadySynced: Boolean = environment.config.property("wallet.alreadySynced").getString().toBoolean()
     println("Wallet is already synced: $alreadySynced")
 
-    val apiPassword: String = System.getenv("API_PASSWORD")
+    val apiPassword: String = environment.config.property("wallet.apiPassword").getString()
+    val mnemonicPhrase: String = environment.config.property("wallet.mnemonic").getString()
 
     val tatooineWallet: TatooineWallet = TatooineWallet()
-    tatooineWallet.initializeWallet(alreadySynced)
+    tatooineWallet.initializeWallet(alreadySynced, mnemonicPhrase)
 
     install(Authentication) {
-        basic(name = "padawan-password") {
+        basic(name = "padawan-authenticated") {
             realm = "Ktor Server"
             validate { credentials ->
                 println(credentials)
@@ -58,17 +59,13 @@ fun Application.module(testing: Boolean = false) {
         get("/getbalance") {
            val balance: String = tatooineWallet.getBalance().toString()
            call.respondText("Balance is $balance", ContentType.Text.Plain)
-       }
-
-        post("/sendcoins") {
-            val address: String = call.receive<String>()
-            val txid = tatooineWallet.sendTo(address)
-            call.respondText("Sent coins to $address\ntxid: $txid", ContentType.Text.Plain)
         }
 
-        authenticate("padawan-password") {
-            get("/passwordrequired") {
-                call.respondText("Welcome to a password protected route", ContentType.Text.Plain)
+        authenticate("padawan-authenticated") {
+            post("/sendcoins") {
+                val address: String = call.receiveText()
+                val txid = tatooineWallet.sendTo(address)
+                call.respondText("Sent coins to $address\ntxid: $txid", ContentType.Text.Plain)
             }
         }
     }
