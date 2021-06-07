@@ -1,0 +1,11 @@
+FROM docker.io/adoptopenjdk/openjdk16:x86_64-debian-jre-16.0.1_9
+
+RUN useradd --create-home --no-log-init --shell /bin/bash tatooine
+USER tatooine
+
+COPY tatooine-0.1.0.tar /tmp/
+RUN tar -xvf /tmp/tatooine-0.1.0.tar -C /home/tatooine/
+COPY production.conf /home/tatooine/tatooine-0.1.0/bin/
+
+# CMD ["/home/tatooine/tatooine-0.0.1/bin/app"]
+CMD ["/home/tatooine/tatooine-0.0.1/bin/app", "-config=production.conf"]
