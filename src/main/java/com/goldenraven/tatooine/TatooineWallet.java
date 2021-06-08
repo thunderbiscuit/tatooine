@@ -26,6 +26,7 @@ public class TatooineWallet {
         this.mnemonic = mnemonicPhrase;
         // BriefLogFormatter.init();
         BriefLogFormatter.initWithSilentBitcoinJ();
+        String walletdataDirectory = System.getenv("HOME") + "/.tatooinewalletdata/";
 
         if (alreadySynced == false) {
 //            String mnemonic = System.getenv("TATOOINE_MNEMONIC");
@@ -41,11 +42,11 @@ public class TatooineWallet {
             // this.kit = new WalletAppKit(params, Script.ScriptType.P2WPKH, new KeyChainGroupStructureTatooine(), new File("."), filePrefix).restoreWalletFromSeed(seed);
 
             // the path created by default is m/1h/0/*
-            this.kit = new WalletAppKit(params, Script.ScriptType.P2WPKH, null, new File("./walletdata"), filePrefix).restoreWalletFromSeed(seed);
+            this.kit = new WalletAppKit(params, Script.ScriptType.P2WPKH, null, new File(walletdataDirectory), filePrefix).restoreWalletFromSeed(seed);
             // this.kit = new WalletAppKit(params, Script.ScriptType.P2WPKH, KeyChainGroupStructure.DEFAULT, new File("."), filePrefix).restoreWalletFromSeed(seed);
             // this.kit = new WalletAppKit(params, new File("."), filePrefix).restoreWalletFromSeed(seed);
         } else {
-            this.kit = new WalletAppKit(params, Script.ScriptType.P2WPKH, null, new File("./walletdata"), filePrefix);
+            this.kit = new WalletAppKit(params, Script.ScriptType.P2WPKH, null, new File(walletdataDirectory), filePrefix);
         }
 
         kit.startAsync();
