@@ -29,22 +29,14 @@ public class TatooineWallet {
         String walletdataDirectory = System.getenv("HOME") + "/.tatooinewalletdata/";
 
         if (alreadySynced == false) {
-//            String mnemonic = System.getenv("TATOOINE_MNEMONIC");
             System.out.println(this.mnemonic);
             String passphrase = "";
             Long creationTime = 1_615_000_000L;
 
             DeterministicSeed seed = new DeterministicSeed(this.mnemonic, null, passphrase, creationTime);
 
-            // trying to implement a BIP84 compatible wallet but not working for now
-            // problem is with the `structure` parameter being of the wrong type
-            // this.kit = new WalletAppKit(params, Script.ScriptType.P2WPKH, structure, new File("."), filePrefix).restoreWalletFromSeed(seed);
-            // this.kit = new WalletAppKit(params, Script.ScriptType.P2WPKH, new KeyChainGroupStructureTatooine(), new File("."), filePrefix).restoreWalletFromSeed(seed);
-
             // the path created by default is m/1h/0/*
             this.kit = new WalletAppKit(params, Script.ScriptType.P2WPKH, null, new File(walletdataDirectory), filePrefix).restoreWalletFromSeed(seed);
-            // this.kit = new WalletAppKit(params, Script.ScriptType.P2WPKH, KeyChainGroupStructure.DEFAULT, new File("."), filePrefix).restoreWalletFromSeed(seed);
-            // this.kit = new WalletAppKit(params, new File("."), filePrefix).restoreWalletFromSeed(seed);
         } else {
             this.kit = new WalletAppKit(params, Script.ScriptType.P2WPKH, null, new File(walletdataDirectory), filePrefix);
         }
@@ -62,7 +54,6 @@ public class TatooineWallet {
         } else {
             System.out.println("This old wallet is alive and well");
         }
-//        String mnemonic = System.getenv("TATOOINE_MNEMONIC");
         System.out.println("mnemonic is :" + this.mnemonic);
     }
 
@@ -79,16 +70,9 @@ public class TatooineWallet {
 
     public String sendTo(String address) throws InsufficientMoneyException {
         Address recipientAddress = SegwitAddress.fromBech32(null, address);
-        SendRequest sendRequest = SendRequest.to(recipientAddress, Coin.valueOf(1200));
+        SendRequest sendRequest = SendRequest.to(recipientAddress, Coin.valueOf(21000));
         sendRequest.feePerKb = Coin.valueOf(200);
-
-        System.out.println("\n\n\n---\n\n\n---\n\n\n---\n\n\n");
-        System.out.println("address: " + recipientAddress.toString());
-        System.out.println("send request: " + sendRequest);
-        System.out.println("\n\n\n---\n\n\n---\n\n\n---\n\n\n");
-
         Wallet.SendResult result = kit.wallet().sendCoins(sendRequest);
-        System.out.println("\n\n\n---\n\n\nCoins sent, txid is: " + result.tx.getTxId() + "\n\n\n---\n\n\n");
 
         return result.tx.getTxId().toString();
     }
