@@ -59,6 +59,32 @@ nohup ./tatooine-0.2.0/bin/tatooine -config=production.conf >/dev/null 2>&1 &
 ```
 <br/>
 
+## Podman/Docker
+The easiest way to deploy a Tatooine faucet on the cloud is through a [Podman](https://podman.io/) or [Docker](https://www.docker.com/) container.
+
+To do that, first build the application by running the `distTar` task and copy the resulting tarball to the `podman` directory. Add your `production.conf` file in there as well, and you're ready to build the image.
+```shell
+./gradlew :distTar
+cp ./build/distributions/tatooine-0.2.0.tar ./podman/
+
+# podman/ directory content
+tree podman/
+podman/
+├── Containerfile
+├── production.conf
+└── tatooine-0.2.0/
+```
+
+Then from the `podman` directory, simply build the image, create the container, and start it. If you are deploying on the cloud, you'll need to copy the contents of the `podman/` directory on the host machine first using something like `scp -P 22 -r ./podman/ remoteuser@<ip>:/home/user/`.
+```shell
+cd path/to/podman/
+podman build --tag tatooinefaucet:v0.2.0 .
+podman create --name tatooinefaucet --publish 0.0.0.0:8080:8080 localhost/tatooinefaucet:v0.2.0
+podman start tatooinefaucet
+# podman stop tatooinefaucet
+```
+<br/>
+
 ## Using the faucet
 To get Tatooine to send `21000` satoshis to a given address, use the `/sendcoins` POST route like so:
 ```shell
