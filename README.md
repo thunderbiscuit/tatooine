@@ -3,6 +3,8 @@
     <br/>
     <img src="./artwork.svg" width="370px">
     <br/>
+    <br/>
+    <br/>
 </div>
 
 Tatooine is a small bitcoin testnet faucet built with Ktor, a Kotlin asynchronous framework for creating microservices and web applications. The faucet was initially built for and is currently in production as part of the [Padawan Wallet](https://github.com/thunderbiscuit/padawan-wallet) project.
