@@ -25,8 +25,8 @@ fun Application.module(testing: Boolean = false) {
     val apiPassword: String = environment.config.property("wallet.apiPassword").getString()
     val mnemonicPhrase: String = environment.config.property("wallet.mnemonic").getString()
 
-    val tatooineWallet: TatooineWallet = TatooineWallet()
-    tatooineWallet.initializeWallet(alreadySynced, mnemonicPhrase)
+    val tatooineWallet: TatooineWallet = TatooineWallet
+    tatooineWallet.initializeWallet()
 
     install(Authentication) {
         basic(name = "padawan-authenticated") {
@@ -45,7 +45,7 @@ fun Application.module(testing: Boolean = false) {
     routing {
 
         get("/") {
-            tatooineWallet.helloWallet(alreadySynced)
+            // tatooineWallet.helloWallet(alreadySynced)
             call.respondText("Do. Or do not. There is no try.", ContentType.Text.Plain)
         }
 
