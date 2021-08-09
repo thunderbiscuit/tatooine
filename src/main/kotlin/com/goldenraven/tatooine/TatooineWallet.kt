@@ -1,9 +1,5 @@
 package com.goldenraven.tatooine
 
-import org.bitcoindevkit.bdkjni.Lib
-import org.bitcoindevkit.bdkjni.Network
-import org.bitcoindevkit.bdkjni.WalletConstructor
-import org.bitcoindevkit.bdkjni.WalletPtr
 import org.bitcoindevkit.bdkjni.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

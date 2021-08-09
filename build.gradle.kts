@@ -30,10 +30,6 @@ dependencies {
     implementation("io.ktor:ktor-auth:$ktor_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
 
-    // // bitcoin
-    // implementation("org.bitcoinj:bitcoinj-core:0.15.10")
-    // implementation("com.google.guava:guava:30.1-jre")
-
     // bitcoindevkit
     implementation("org.bitcoindevkit.bdkjni:bdk-jvm:0.2.1-dev")
 
