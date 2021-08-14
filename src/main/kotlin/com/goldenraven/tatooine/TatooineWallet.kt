@@ -13,17 +13,16 @@ object TatooineWallet {
     private val electrumURL: String = "ssl://electrum.blockstream.info:60002"
     val log: Logger = LoggerFactory.getLogger(TatooineWallet::class.java)
 
+    private val feeRate:Float =1F;
+    private val amountToSend:String = 21000.toString();
+
+
     init {
         Lib.load()
         lib = Lib()
-    }
+    }        
 
-    val descriptor =
-        "wpkh([c258d2e4/84h/1h/0h]tpubDDYkZojQFQjht8Tm4jsS3iuEmKjTiEGjG6KnuFNKKJb5A6ZUCUZKdvLdSDWofKi4ToRCwb9poe1XdqfUnP4jaJjCB2Zwv11ZLgSbnZSNecE/0/*)"
-    val change_descriptor =
-        "wpkh([c258d2e4/84h/1h/0h]tpubDDYkZojQFQjht8Tm4jsS3iuEmKjTiEGjG6KnuFNKKJb5A6ZUCUZKdvLdSDWofKi4ToRCwb9poe1XdqfUnP4jaJjCB2Zwv11ZLgSbnZSNecE/1/*)"
-
-    fun initializeWallet(): Unit  {
+    fun initializeWallet(descriptor: String, change_descriptor: String): Unit  {
         walletPtr = Lib().constructor(
             WalletConstructor(
                 name = name,
@@ -36,7 +35,6 @@ object TatooineWallet {
             )
         )
     }
-
 
     public fun sync(max_address: Int?=null) {
         lib.sync(walletPtr, max_address)
@@ -74,8 +72,8 @@ object TatooineWallet {
     }
 
     public fun sendTo(address: String): String {
-        val addresseesAndAmounts: List<Pair<String, String>> = listOf(Pair(address, 21000.toString()))
-        var transactionDetails=createTransaction(1F,addresseesAndAmounts, false, null, null, null)
+        val addresseesAndAmounts: List<Pair<String, String>> = listOf(Pair(address, amountToSend))
+        var transactionDetails=createTransaction(feeRate,addresseesAndAmounts, false, null, null, null)
         val signResponse: SignResponse = sign(transactionDetails.psbt)
         val rawTx: RawTransaction = extractPsbt(signResponse.psbt)
         val txid: Txid = broadcast(rawTx.transaction)
@@ -83,9 +81,7 @@ object TatooineWallet {
     }
 
     fun getDataDir(): String {
-        // return Files.createTempDirectory("bdk-test").toString()
-        // return Paths.get(System.getProperty("java.io.tmpdir"), "bdk-test").toString()
-        val path = Paths.get(System.getProperty("java.io.tmpdir"), "bdk-test").toString()
+        val path = Paths.get(System.getProperty("java.io.tmpdir"), "bdk-test5").toString()
         return path
     }
 }

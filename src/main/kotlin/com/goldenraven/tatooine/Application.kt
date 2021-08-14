@@ -23,10 +23,12 @@ fun Application.module(testing: Boolean = false) {
     println("Wallet is already synced: $alreadySynced")
 
     val apiPassword: String = environment.config.property("wallet.apiPassword").getString()
-    val mnemonicPhrase: String = environment.config.property("wallet.mnemonic").getString()
-
+    val descriptor = environment.config.property("wallet.descriptor").getString()
+    val change_descriptor = environment.config.property("wallet.change_descriptor").getString()
+    
     val tatooineWallet: TatooineWallet = TatooineWallet
-    tatooineWallet.initializeWallet()
+    tatooineWallet.initializeWallet(descriptor,change_descriptor)
+    tatooineWallet.sync()
 
     install(Authentication) {
         basic(name = "padawan-authenticated") {
@@ -64,6 +66,7 @@ fun Application.module(testing: Boolean = false) {
         authenticate("padawan-authenticated") {
             post("/sendcoins") {
                 val address: String = call.receiveText()
+                println(address)
                 val txid = tatooineWallet.sendTo(address)
                 call.respondText("Sent coins to $address\ntxid: $txid", ContentType.Text.Plain)
             }
