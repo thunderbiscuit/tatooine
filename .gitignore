@@ -5,5 +5,3 @@
 *.iml
 *.ipr
 *.iws
-/podman/production.conf
-/tatoonie_extracted/
