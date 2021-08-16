@@ -13,8 +13,8 @@ object TatooineWallet {
     private val electrumURL: String = "ssl://electrum.blockstream.info:60002"
     val log: Logger = LoggerFactory.getLogger(TatooineWallet::class.java)
 
-    private val feeRate:Float =1F;
-    private val amountToSend:String = 21000.toString();
+    private val feeRate: Float = 1F
+    private val amountToSend: String = 21000.toString();
 
 
     init {
@@ -73,7 +73,7 @@ object TatooineWallet {
 
     public fun sendTo(address: String): String {
         val addresseesAndAmounts: List<Pair<String, String>> = listOf(Pair(address, amountToSend))
-        var transactionDetails=createTransaction(feeRate,addresseesAndAmounts, false, null, null, null)
+        var transactionDetails = createTransaction(feeRate,addresseesAndAmounts, false, null, null, null)
         val signResponse: SignResponse = sign(transactionDetails.psbt)
         val rawTx: RawTransaction = extractPsbt(signResponse.psbt)
         val txid: Txid = broadcast(rawTx.transaction)
