@@ -19,15 +19,12 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 @kotlin.jvm.JvmOverloads
 fun Application.module(testing: Boolean = false) {
 
-    val alreadySynced: Boolean = environment.config.property("wallet.alreadySynced").getString().toBoolean()
-    println("Wallet is already synced: $alreadySynced")
-
     val apiPassword: String = environment.config.property("wallet.apiPassword").getString()
     val descriptor = environment.config.property("wallet.descriptor").getString()
-    val change_descriptor = environment.config.property("wallet.change_descriptor").getString()
+    val changeDescriptor = environment.config.property("wallet.changeDescriptor").getString()
     
     val tatooineWallet: TatooineWallet = TatooineWallet
-    tatooineWallet.initializeWallet(descriptor,change_descriptor)
+    tatooineWallet.initializeWallet(descriptor,changeDescriptor)
     tatooineWallet.sync()
 
     install(Authentication) {
@@ -47,26 +44,29 @@ fun Application.module(testing: Boolean = false) {
     routing {
 
         get("/") {
-            // tatooineWallet.helloWallet(alreadySynced)
+            tatooineWallet.sync()
             call.respondText("Do. Or do not. There is no try.", ContentType.Text.Plain)
         }
 
         // for testing purposes only, will remove
         get("/newaddress") {
+           tatooineWallet.sync() 
            val newAddress = tatooineWallet.generateNewAddress()
            call.respondText("Load wallet by sending testnet coins to $newAddress", ContentType.Text.Plain)
         }
 
         // for testing purposes only, will remove
         get("/getbalance") {
+           tatooineWallet.sync() 
            val balance: String = tatooineWallet.getBalance().toString()
            call.respondText("Balance is $balance", ContentType.Text.Plain)
         }
 
         authenticate("padawan-authenticated") {
             post("/sendcoins") {
+                tatooineWallet.sync()
                 val address: String = call.receiveText()
-                println(address)
+                println("Coins being sent to address $address")
                 val txid = tatooineWallet.sendTo(address)
                 call.respondText("Sent coins to $address\ntxid: $txid", ContentType.Text.Plain)
             }
