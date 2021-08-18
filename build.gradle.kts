@@ -1,6 +1,3 @@
-import org.jetbrains.kotlin.gradle.dsl.Coroutines
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 val ktor_version: String by project
 val kotlin_version: String by project
 val logback_version: String by project
@@ -8,7 +5,6 @@ val logback_version: String by project
 plugins {
     application
     kotlin("jvm") version "1.5.10"
-    id("com.github.johnrengelman.shadow") version "6.1.0"
 }
 
 group = "com.goldenraven"
