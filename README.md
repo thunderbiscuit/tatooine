@@ -93,7 +93,17 @@ podman start tatooinefaucet
 <br/>
 
 ## Using the faucet
-To get Tatooine to send `21000` satoshis to a given address, use the `/sendcoins` POST route like so:
+Some of the routes for the server require authentication and some do not, and the `/sendcoins` route requires a POST request. Here are examples for all 4 routes:
 ```shell
-curl -X POST -d "<testnet address>" http://127.0.0.1:8080/sendcoins
+# /
+curl http://127.0.0.1:8080/
+
+# /newaddress
+curl --user padawan:password http://127.0.0.1:8080/newaddress
+
+# /getbalance
+curl --user padawan:password http://127.0.0.1:8080/getbalance 
+
+# /sendcoins
+curl -X POST --data "<bitcoin address>" --user padawan:password http://127.0.0.1:8080/sendcoins 
 ```
