@@ -17,13 +17,13 @@ You can build the project by running the `distTar` task like so
 ```shell
 ./gradlew distTar
 ```
-This will output a tarball in `/build/distributions/tatooine-0.2.0.tar` which you can extract anywhere you'd like using something like
+This will output a tarball in `/build/distributions/tatooine-0.3.0.tar` which you can extract anywhere you'd like using something like
 ```shell
-tar --extract --verbose --file ./build/distributions/tatooine-0.2.0.tar -C /target/path/for/faucet/
+tar --extract --verbose --file ./build/distributions/tatooine-0.3.0.tar -C /target/path/for/faucet/
 ```
 The tarball opens up into a directory
 ```shell
-❯ tree tattoine-0.2.0
+❯ tree tattoine-0.3.0
 .
 ├── bin
 │   ├── tatooine
@@ -38,11 +38,7 @@ The tarball opens up into a directory
 ## Running the faucet
 On Linux/MacOS, simply run the `tatooine` binary to start up the service:
 ```shell
-./tatooine-0.2.0/bin/tatooine
-```
-This will sync your wallet from scratch (note that the config file in `resources/` contains a `wallet.alreadySynced` field set to `false` by default). To tell Tatooine that a valid `.wallet` file exists and that the wallet does not need to be recovered from scratch (this is not necessary but saves time on startup), you can set this config field to `true` like so:
-```shell
-./tatooine-0.2.0/bin/tatooine -P:wallet.alreadySynced=true
+./tatooine-0.3.0/bin/tatooine
 ```
 <br/>
 
@@ -53,42 +49,52 @@ A better way is to write different configuration files and simply provide their 
 
 You achieve this by adding a `-config` argument to the call when launching the service. For example, if you add a file called `production.conf` to the `bin/` directory with the binaries, you'll then be able to launch the service using:
 ```shell
-./tatooine-0.2.0/bin/tatooine -config=production.conf
+./tatooine-0.3.0/bin/tatooine -config=production.conf
 ```
 <br/>
 
 ## Launch and keep the process running in the background
-If the faucet is started as in the examples above, quitting the terminal that is running the application or dropping the ssh connection (if the faucet is running in the cloud) will cause the process to stop and the faucet to wind down. 
-
-This is usually not desired. To launch and keep the faucet live even after logging off, note that the `&` argument allows a process to run in the background, and using nohup allows you to log off and keep the process running. Because the resulting `nohup.out` file can get quite big, you can start the process and ensure that file is not created by adding `>/dev/null 2>&1` to your command.
+If the faucet is started as in the examples above, quitting the terminal that is running the application or dropping the ssh connection (if the faucet is running in the cloud) will cause the process to stop and the faucet to wind down. But this is usually not desired; to launch and keep the faucet live even after logging off, note that the `&` argument allows a process to run in the background, and using nohup allows you to log off and keep the process running. Because the resulting `nohup.out` file can get quite big, you can start the process and ensure that file is not created by adding `>/dev/null 2>&1` to your command.
 ```shell
-nohup ./tatooine-0.2.0/bin/tatooine -config=production.conf >/dev/null 2>&1 &
+# with logs
+nohup ./tatooine-0.3.0/bin/tatooine -config=production.conf &
+
+# no logs
+nohup ./tatooine-0.3.0/bin/tatooine -config=production.conf >/dev/null 2>&1 &
 ```
 <br/>
 
 ## Podman/Docker
 The easiest way to deploy a Tatooine faucet on the cloud is through a [Podman](https://podman.io/) or [Docker](https://www.docker.com/) container.
 
-To do that, first build the application by running the `distTar` task and copy the resulting tarball to the `podman` directory. Add your `production.conf` file in there as well, and you're ready to build the image.
+To do that, first build the application by running the `distTar` task and copy the resulting tarball to the `podman` directory. Add your `production.conf` file and the native bdk-jvm library (see [bdk-jni](https://github.com/bitcoindevkit/bdk-jni) for how to build it) in there as well, and you're ready to build the image.
 ```shell
 ./gradlew :distTar
-cp ./build/distributions/tatooine-0.2.0.tar ./podman/
+cp ./build/distributions/tatooine-0.3.0.tar ./podman/
 
 # podman/ directory content
 tree podman/
 podman/
 ├── Containerfile
+├── libbdk_jni.so
 ├── production.conf
-└── tatooine-0.2.0/
+└── tatooine-0.3.0/
 ```
 
-Then from the `podman` directory, simply build the image, create the container, and start it. If you are deploying on the cloud, you'll need to copy the contents of the `podman/` directory on the host machine first using something like `scp -P 22 -r ./podman/ remoteuser@<ip>:/home/user/`.
+Note that you can get runtime errors if the `libbkd_jni.so` native library was not compiled on the same host as the one you run the application on. To ensure this doesn't happen, build the native lib inside the container, or choose an image that is the same as the one you use for compilation.
+
+Then from the `podman` directory, simply build the image, create the container, and start it.
 ```shell
 cd path/to/podman/
-podman build --tag tatooinefaucet:v0.2.0 .
-podman create --name tatooinefaucet --publish 0.0.0.0:8080:8080 localhost/tatooinefaucet:v0.2.0
+podman build --tag tatooinefaucet:v0.3.0 .
+podman create --name tatooinefaucet --publish 0.0.0.0:8080:8080 localhost/tatooinefaucet:v0.3.0
 podman start tatooinefaucet
 # podman stop tatooinefaucet
+```
+
+If you are deploying on the cloud, you'll need to copy the contents of the `podman/` directory on the host machine first using something like
+```shell
+scp -P 22 -r ./podman/ user@<ip>:/home/user/
 ```
 <br/>
 
