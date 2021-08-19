@@ -5,12 +5,8 @@
  
 package com.goldenraven.tatooine
 
-import com.goldenraven.tatooine.TatooineWallet
 import io.ktor.application.*
 import io.ktor.auth.*
-import io.ktor.http.*
-import io.ktor.request.*
-import io.ktor.response.*
 import io.ktor.routing.*
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
@@ -23,16 +19,16 @@ fun Application.module(testing: Boolean = false) {
     val descriptor = environment.config.property("wallet.descriptor").getString()
     val changeDescriptor = environment.config.property("wallet.changeDescriptor").getString()
     
-    //Initializing BDK wallet
+    // Initialize wallet
     val tatooineWallet: TatooineWallet = TatooineWallet
-    tatooineWallet.initializeWallet(descriptor,changeDescriptor)
+    tatooineWallet.initializeWallet(descriptor, changeDescriptor)
     tatooineWallet.sync()
 
     install(Authentication) {
         basic(name = "padawan-authenticated") {
             realm = "Ktor Server"
             validate { credentials ->
-                println(credentials)
+                println("Authenticated request made with credentials $credentials")
                 if (credentials.password == apiPassword) {
                     UserIdPrincipal(credentials.name)
                 } else {
@@ -43,36 +39,14 @@ fun Application.module(testing: Boolean = false) {
     }
 
     routing {
+        // non-authenticated routes
+        root()
 
-        get("/") {
-            tatooineWallet.sync()
-            call.respondText("Do. Or do not. There is no try.", ContentType.Text.Plain)
-        }
-
+        // authenticated routes
         authenticate("padawan-authenticated") {
-
-            // for testing purposes only, will remove
-            get("/newaddress") {
-                val newAddress = tatooineWallet.generateNewAddress() 
-                call.respondText("Load wallet by sending testnet coins to $newAddress", ContentType.Text.Plain)
-                tatooineWallet.sync()
-            }
-
-            // for testing purposes only, will remove
-            get("/getbalance") {
-                tatooineWallet.sync() 
-                val balance: String = tatooineWallet.getBalance().toString()
-                call.respondText("Balance is $balance", ContentType.Text.Plain)
-            }
-
-           // Route for sending testcoins on a given address
-            post("/sendcoins") {
-                val address: String = call.receiveText()
-                println("Coins being sent to address $address")
-                val txid = tatooineWallet.sendTo(address)
-                call.respondText("Sent coins to $address\ntxid: $txid", ContentType.Text.Plain)
-                tatooineWallet.sync()
-            }
+            newAddress(tatooineWallet)
+            getBalance(tatooineWallet)
+            sendCoins(tatooineWallet)
         }
     }
 }
