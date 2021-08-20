@@ -6,3 +6,5 @@
 *.ipr
 *.iws
 /podman/production.conf
+/app/build/
+/.settings/

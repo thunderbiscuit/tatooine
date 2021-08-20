@@ -9,7 +9,7 @@ object TatooineWallet {
     
     private val lib: Lib
     private lateinit var walletPtr: WalletPtr
-    private val name: String = "padawan-faucet"
+    private val name: String = "padawan-faucet-0"
     private val electrumURL: String = "ssl://electrum.blockstream.info:60002"
     val log: Logger = LoggerFactory.getLogger(TatooineWallet::class.java)
 
