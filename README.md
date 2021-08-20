@@ -17,9 +17,9 @@ You can build the project by running the `distTar` task like so
 ```shell
 ./gradlew distTar
 ```
-This will output a tarball in `/build/distributions/tatooine-0.3.0.tar` which you can extract anywhere you'd like using something like
+This will output a tarball in `/app/build/distributions/tatooine-0.3.0.tar` which you can extract anywhere you'd like using something like
 ```shell
-tar --extract --verbose --file ./build/distributions/tatooine-0.3.0.tar -C /target/path/for/faucet/
+tar --extract --verbose --file ./app/build/distributions/tatooine-0.3.0.tar -C /target/path/for/faucet/
 ```
 The tarball opens up into a directory
 ```shell
@@ -70,7 +70,7 @@ The easiest way to deploy a Tatooine faucet on the cloud is through a [Podman](h
 To do that, first build the application by running the `distTar` task and copy the resulting tarball to the `podman` directory. Add your `production.conf` file and the native bdk-jvm library (see [bdk-jni](https://github.com/bitcoindevkit/bdk-jni) for how to build it) in there as well, and you're ready to build the image.
 ```shell
 ./gradlew :distTar
-cp ./build/distributions/tatooine-0.3.0.tar ./podman/
+cp ./app/build/distributions/tatooine-0.3.0.tar ./podman/
 
 # podman/ directory content
 tree podman/
