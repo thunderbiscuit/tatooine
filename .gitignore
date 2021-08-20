@@ -6,5 +6,6 @@
 *.ipr
 *.iws
 /podman/production.conf
+/podman/libbdk_jni.so
 /app/build/
 /.settings/
