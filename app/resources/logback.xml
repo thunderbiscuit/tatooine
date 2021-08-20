@@ -4,9 +4,10 @@
             <pattern>%d{YYYY-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
+    <timestamp key="timestamp" datePattern="yyyy-MM-dd-HH:mm" />
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
         <file>
-            tatooine.log
+            tatooinelogs-${timestamp}.log
         </file>
         <encoder>
             <pattern>%date{YYYY-MM-dd HH:mm:ss.SSS} %level - %message%n</pattern>
