@@ -37,3 +37,9 @@ fun Route.sendCoins(wallet: TatooineWallet) {
         wallet.sync()
     }
 }
+
+fun Route.shutdown() {
+    get("/shutdown") {
+        // shutting down
+    }
+}

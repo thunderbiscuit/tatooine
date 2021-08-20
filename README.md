@@ -99,7 +99,7 @@ scp -P 22 -r ./podman/ user@<ip>:/home/user/
 <br/>
 
 ## Using the faucet
-Some of the routes for the server require authentication and some do not, and the `/sendcoins` route requires a POST request. Here are examples for all 4 routes:
+Some of the routes for the server require authentication and some do not, and the `/sendcoins` route requires a POST request. Here are examples for all 5 routes:
 ```shell
 # /
 curl http://127.0.0.1:8080/
@@ -111,5 +111,8 @@ curl --user padawan:password http://127.0.0.1:8080/newaddress
 curl --user padawan:password http://127.0.0.1:8080/getbalance 
 
 # /sendcoins
-curl -X POST --data "<bitcoin address>" --user padawan:password http://127.0.0.1:8080/sendcoins 
+curl -X POST --data "<bitcoin address>" --user padawan:password http://127.0.0.1:8080/sendcoins
+
+# /shutdown
+curl --user padawan:password http://127.0.0.1:8080/shutdown
 ```
