@@ -7,9 +7,11 @@ package com.goldenraven.tatooine
 
 import io.ktor.application.*
 import io.ktor.auth.*
+import io.ktor.features.*
 import io.ktor.http.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import org.slf4j.event.Level
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -30,10 +32,10 @@ fun Application.module(testing: Boolean = false) {
         basic(name = "padawan-authenticated") {
             realm = "Ktor Server"
             validate { credentials ->
-                println("Authenticated request made with credentials $credentials")
                 if (credentials.password == apiPassword) {
                     UserIdPrincipal(credentials.name)
                 } else {
+                    application.environment.log.warn("Bad authenticated request made with credentials $credentials")
                     null
                 }
             }

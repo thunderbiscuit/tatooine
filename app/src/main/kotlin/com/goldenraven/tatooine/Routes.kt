@@ -8,6 +8,7 @@ import io.ktor.routing.*
 
 fun Route.root() {
     get("/") {
+        call.application.environment.log.info("root route accessed")
         call.respondText("Do. Or do not. There is no try.", ContentType.Text.Plain)
     }
 }
@@ -15,6 +16,7 @@ fun Route.root() {
 fun Route.newAddress(wallet: TatooineWallet) {
     get("/newaddress") {
         val newAddress = wallet.generateNewAddress()
+        call.application.environment.log.info("newaddress route accessed with address: $newAddress")
         call.respondText("Load wallet by sending testnet coins to $newAddress", ContentType.Text.Plain)
         wallet.sync()
     }
@@ -24,6 +26,7 @@ fun Route.getBalance(wallet: TatooineWallet) {
     get("/getbalance") {
         wallet.sync()
         val balance: String = wallet.getBalance().toString()
+        call.application.environment.log.info("getbalance route accessed with balance: $balance")
         call.respondText("Balance is $balance", ContentType.Text.Plain)
     }
 }
@@ -33,6 +36,7 @@ fun Route.sendCoins(wallet: TatooineWallet) {
         val address: String = call.receiveText()
         println("Coins being sent to address $address")
         val txid = wallet.sendTo(address)
+        call.application.environment.log.info("sendcoins route accessed with txid $txid")
         call.respondText("Sent coins to $address\ntxid: $txid", ContentType.Text.Plain)
         wallet.sync()
     }
