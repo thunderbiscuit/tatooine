@@ -7,11 +7,7 @@ package com.goldenraven.tatooine
 
 import io.ktor.application.*
 import io.ktor.auth.*
-import io.ktor.features.*
-import io.ktor.http.*
-import io.ktor.response.*
 import io.ktor.routing.*
-import org.slf4j.event.Level
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
