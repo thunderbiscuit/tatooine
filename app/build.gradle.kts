@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "com.goldenraven"
-version = "0.3.0"
+version = "0.4.0"
 
 application {
     mainClass.set("io.ktor.server.netty.EngineMain")
