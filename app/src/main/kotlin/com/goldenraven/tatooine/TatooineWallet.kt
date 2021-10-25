@@ -29,6 +29,9 @@ object TatooineWallet {
                 change_descriptor = change_descriptor,
                 electrum_url = electrumURL,
                 electrum_proxy = null,
+                electrum_retry = 10,
+                electrum_timeout = null,
+                electrum_stop_gap = 100,
             )
         )
     }
@@ -78,6 +81,6 @@ object TatooineWallet {
     }
 
     private fun getDataDir(): String {
-        return Paths.get(System.getProperty("java.io.tmpdir"), "bdk-test5").toString()
+        return Paths.get(System.getProperty("java.io.tmpdir"), "tatooine-0").toString()
     }
 }

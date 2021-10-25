@@ -16,13 +16,12 @@ application {
 
 dependencies {
     implementation(kotlin("stdlib"))
-    // implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
     implementation("io.ktor:ktor-server-netty:$ktor_version")
     implementation("io.ktor:ktor-auth:$ktor_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
 
     // bitcoindevkit
-    implementation("org.bitcoindevkit.bdkjni:bdk-jvm:0.2.1-dev")
+    implementation("org.bitcoindevkit.bdkjni:bdk-jvm:0.3.0")
 
     // tests
     testImplementation("io.ktor:ktor-server-tests:$ktor_version")
