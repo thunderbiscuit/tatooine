@@ -36,7 +36,7 @@ The tarball opens up into a directory
 <br/>
 
 ## Running the faucet
-On Linux/MacOS, simply run the `tatooine` binary to start up the service:
+On Linux/macOS, simply run the `tatooine` binary to start up the service:
 ```shell
 ./tatooine-0.3.0/bin/tatooine
 ```

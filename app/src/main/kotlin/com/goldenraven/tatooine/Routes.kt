@@ -5,6 +5,7 @@ import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import io.ktor.server.engine.*
 
 fun Route.root() {
     get("/") {
@@ -41,8 +42,10 @@ fun Route.sendCoins(wallet: TatooineWallet) {
     }
 }
 
+val shutdown = ShutDownUrl("") { 1 }
+
 fun Route.shutdown() {
     get("/shutdown") {
-        // shutting down
+        shutdown.doShutdown(call)
     }
 }
