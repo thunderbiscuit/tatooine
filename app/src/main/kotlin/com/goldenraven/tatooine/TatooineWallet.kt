@@ -6,8 +6,7 @@ import java.nio.file.Paths
 object TatooineWallet {
 
     object NullProgress : BdkProgress {
-        override fun update(progress: Float, message: String?) {
-        }
+        override fun update(progress: Float, message: String?) {}
     }
     
     private lateinit var wallet: OnlineWallet
@@ -18,15 +17,29 @@ object TatooineWallet {
     private const val amountToSend: String = 21000.toString()
 
     fun initializeWallet(descriptor: String, changeDescriptor: String) {
-        val database = DatabaseConfig.Sled(SledDbConfiguration(getDataDir(), name))
-        val blockchain = BlockchainConfig.Electrum(ElectrumConfig(electrumURL, null, 10u, null, 10u))
+        val databaseConfig = DatabaseConfig.Sled(
+            SledDbConfiguration(
+                path = getDataDir(),
+                treeName = name
+            )
+        )
+
+        val blockchainConfig = BlockchainConfig.Electrum(
+            ElectrumConfig(
+                url = electrumURL,
+                socks5 = null,
+                retry = 10u,
+                timeout = null,
+                stopGap = 10u
+            )
+        )
 
         this.wallet = OnlineWallet(
             descriptor = descriptor,
             changeDescriptor = changeDescriptor,
             network = Network.TESTNET,
-            databaseConfig = database,
-            blockchainConfig = blockchain,
+            databaseConfig = databaseConfig,
+            blockchainConfig = blockchainConfig,
         )
     }
 
