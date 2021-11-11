@@ -4,11 +4,11 @@ val logback_version: String by project
 
 plugins {
     application
-    kotlin("jvm") version "1.5.21"
+    kotlin("jvm") version "1.5.31"
 }
 
 group = "com.goldenraven"
-version = "0.4.0"
+version = "0.5.0"
 
 application {
     mainClass.set("io.ktor.server.netty.EngineMain")
