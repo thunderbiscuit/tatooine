@@ -17,15 +17,16 @@ object TatooineWallet {
     private const val feeRate: Float = 1F
     private const val amountToSend: String = 21000.toString()
 
-    fun initializeWallet(descriptor: String, change_descriptor: String) {
+    fun initializeWallet(descriptor: String, changeDescriptor: String) {
         val database = DatabaseConfig.Sled(SledDbConfiguration(getDataDir(), name))
         val blockchain = BlockchainConfig.Electrum(ElectrumConfig(electrumURL, null, 10u, null, 10u))
-        wallet = OnlineWallet(
-            descriptor,
-            change_descriptor,
-            Network.TESTNET,
-            database,
-            blockchain
+
+        this.wallet = OnlineWallet(
+            descriptor = descriptor,
+            changeDescriptor = changeDescriptor,
+            network = Network.TESTNET,
+            databaseConfig = database,
+            blockchainConfig = blockchain,
         )
     }
 
@@ -44,12 +45,13 @@ object TatooineWallet {
     fun sendTo(address: String): String {
         val psbt = PartiallySignedBitcoinTransaction(wallet, address, amountToSend.toULong(), feeRate)
         wallet.sign(psbt)
+
         val transaction = wallet.broadcast(psbt)
-        val id = when (transaction) {
+        val txid = when (transaction) {
             is Transaction.Confirmed -> transaction.details.id
             is Transaction.Unconfirmed -> transaction.details.id
         }
-        return id
+        return txid
     }
 
     private fun getDataDir(): String {
