@@ -7,7 +7,7 @@
     <timestamp key="timestamp" datePattern="yyyy-MM-dd-HH:mm" />
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
         <file>
-            tatooinelogs-${timestamp}.log
+            ${HOME}/logs/tatooinelogs-${timestamp}.log
         </file>
         <encoder>
             <pattern>%date{YYYY-MM-dd HH:mm:ss.SSS} %level - %message%n</pattern>
