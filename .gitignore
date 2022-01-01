@@ -5,8 +5,10 @@
 *.iml
 *.ipr
 *.iws
+
 /podman/production.conf
 /podman/libbdk_jni.so
 /podman/tatooine*
 /app/build/
 /.settings/
+.DS_Store
