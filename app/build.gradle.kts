@@ -11,12 +11,11 @@ application {
 }
 
 dependencies {
-    // implementation("org.jetbrains.kotlin:kotlin-stdlib:1.8.0")
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.5.0")
     implementation(kotlin("stdlib"))
     implementation("io.ktor:ktor-server-netty:2.2.1")
     implementation("io.ktor:ktor-server-auth:2.2.1")
-    implementation("ch.qos.logback:logback-classic:1.2.6")
+    implementation("ch.qos.logback:logback-classic:1.4.5")
 
     // bitcoindevkit
     implementation("org.bitcoindevkit:bdk-jvm:0.5.1")
