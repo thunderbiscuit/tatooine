@@ -1,10 +1,6 @@
-val ktor_version: String by project
-val kotlin_version: String by project
-val logback_version: String by project
-
 plugins {
     application
-    kotlin("jvm") version "1.5.31"
+    kotlin("jvm") version "1.8.0"
 }
 
 group = "com.goldenraven"
@@ -15,18 +11,18 @@ application {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
+    // implementation("org.jetbrains.kotlin:kotlin-stdlib:1.8.0")
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.5.0")
-//    implementation(kotlin("stdlib"))
-    implementation("io.ktor:ktor-server-netty:$ktor_version")
-    implementation("io.ktor:ktor-auth:$ktor_version")
-    implementation("ch.qos.logback:logback-classic:$logback_version")
+    implementation(kotlin("stdlib"))
+    implementation("io.ktor:ktor-server-netty:2.2.1")
+    implementation("io.ktor:ktor-server-auth:2.2.1")
+    implementation("ch.qos.logback:logback-classic:1.2.6")
 
     // bitcoindevkit
-    implementation("org.bitcoindevkit:bdk-jvm:0.1.2")
+    implementation("org.bitcoindevkit:bdk-jvm:0.5.1")
 
     // tests
-    testImplementation("io.ktor:ktor-server-tests:$ktor_version")
+    testImplementation("io.ktor:ktor-server-tests:2.2.1")
 }
 
 kotlin.sourceSets["main"].kotlin.srcDirs("src")

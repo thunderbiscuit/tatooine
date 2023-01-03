@@ -1,20 +1,21 @@
 package com.goldenraven.tatooine
 
 import org.bitcoindevkit.*
+import org.bitcoindevkit.Wallet as BdkWallet
 import java.nio.file.Paths
 
-object TatooineWallet {
+object FaucetWallet {
 
     object NullProgress : BdkProgress {
         override fun update(progress: Float, message: String?) {}
     }
     
-    private lateinit var wallet: OnlineWallet
+    private lateinit var wallet: BdkWallet
     private const val name: String = "padawan-faucet-0"
     private const val electrumURL: String = "ssl://electrum.blockstream.info:60002"
 
-    private const val feeRate: Float = 1F
-    private const val amountToSend: String = 21000.toString()
+    private const val feeRate: Float = 2F
+    private const val amountToSend: String = 75000.toString()
 
     fun initializeWallet(descriptor: String, changeDescriptor: String) {
         val databaseConfig = DatabaseConfig.Sled(
@@ -34,7 +35,7 @@ object TatooineWallet {
             )
         )
 
-        this.wallet = OnlineWallet(
+        this.wallet = BdkWallet(
             descriptor = descriptor,
             changeDescriptor = changeDescriptor,
             network = Network.TESTNET,
@@ -59,12 +60,8 @@ object TatooineWallet {
         val psbt = PartiallySignedBitcoinTransaction(wallet, address, amountToSend.toULong(), feeRate)
         wallet.sign(psbt)
 
-        val transaction = wallet.broadcast(psbt)
-        val txid = when (transaction) {
-            is Transaction.Confirmed -> transaction.details.id
-            is Transaction.Unconfirmed -> transaction.details.id
-        }
-        return txid
+        // return txid
+        return wallet.broadcast(psbt)
     }
 
     private fun getDataDir(): String {
