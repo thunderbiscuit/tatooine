@@ -17,13 +17,13 @@ You can build the project by running the `distTar` task like so
 ```shell
 ./gradlew distTar
 ```
-This will output a tarball in `/app/build/distributions/tatooine-0.5.0.tar` which you can extract anywhere you'd like using something like
+This will output a tarball in `/app/build/distributions/tatooine-0.6.0.tar` which you can extract anywhere you'd like using something like
 ```shell
-tar --extract --verbose --file ./app/build/distributions/tatooine-0.5.0.tar -C /target/path/for/faucet/
+tar --extract --verbose --file ./app/build/distributions/tatooine-0.6.0.tar -C /target/path/for/faucet/
 ```
 The tarball opens up into a directory
 ```shell
-❯ tree tattoine-0.5.0
+❯ tree tattoine-0.6.0
 .
 ├── bin
 │   ├── tatooine
@@ -38,7 +38,7 @@ The tarball opens up into a directory
 ## Running the faucet
 On Linux/macOS, simply run the `tatooine` binary to start up the service:
 ```shell
-./tatooine-0.5.0/bin/tatooine
+./tatooine-0.6.0/bin/tatooine
 ```
 <br/>
 
@@ -49,7 +49,7 @@ A better way is to write different configuration files and simply provide their 
 
 You achieve this by adding a `-config` argument to the call when launching the service. For example, if you add a file called `production.conf` to the `bin/` directory with the binaries, you'll then be able to launch the service using:
 ```shell
-./tatooine-0.5.0/bin/tatooine -config=production.conf
+./tatooine-0.6.0/bin/tatooine -config=production.conf
 ```
 <br/>
 
@@ -66,7 +66,7 @@ tree podman/
 podman/
 ├── Containerfile
 ├── production.conf
-└── tatooine-0.5.0/
+└── tatooine-0.6.0/
 ```
 
 Then from the `podman` directory, simply build the image, create the container, and start it.
@@ -85,16 +85,13 @@ scp -P 22 -r ./podman/ user@<ip>:/home/user/
 <br/>
 
 ## Using the faucet
-Most of the routes for the server require authentication, and the `/sendcoins` route requires a POST request. Here are examples for all 5 routes:
+Most of the routes for the server require authentication, and the `/sendcoins` route requires a POST request. Here are examples for all 4 routes:
 ```shell
 # /
 curl http://127.0.0.1:8080/
 
-# /newaddress
-curl --user padawan:password http://127.0.0.1:8080/newaddress
-
 # /getbalance
-curl --user padawan:password http://127.0.0.1:8080/getbalance 
+curl --user padawan:password http://127.0.0.1:8080/getbalance
 
 # /sendcoins
 curl -X POST --data "<bitcoin address>" --user padawan:password http://127.0.0.1:8080/sendcoins

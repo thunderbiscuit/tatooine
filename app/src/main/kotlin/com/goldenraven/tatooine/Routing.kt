@@ -27,17 +27,23 @@ fun Application.configureRouting(wallet: FaucetWallet) {
                 val balance: String = wallet.getBalance().toString()
                 call.application.environment.log.info("getbalance route accessed with balance: $balance")
                 call.respondText(
-                    "Balance is $balance\n",
+                    text = "Balance is $balance\n",
                     contentType = ContentType.Text.Plain,
                     status = HttpStatusCode.OK
                 )
             }
 
             post("/sendcoins") {
-                val address: String = call.receiveText()
+                // val address: String = call.receiveText()
+                val address: String = call.receive<String>()
                 val txid = wallet.sendTo(address)
-                call.application.environment.log.info("sendcoins route accessed with txid $txid")
-                call.respondText("Sending coins to $address txid: $txid", ContentType.Text.Plain)
+                call.application.environment.log.info("sendcoins route accessed, txid $txid")
+                call.respondText("Sending coins", ContentType.Text.Plain)
+                call.respondText(
+                    text = "Sending coins to $address txid: $txid",
+                    contentType = ContentType.Text.Plain,
+                    status = HttpStatusCode.OK
+                )
                 wallet.sync()
             }
 
