@@ -13,7 +13,7 @@
             <pattern>%date{YYYY-MM-dd HH:mm:ss.SSS} %level - %message%n</pattern>
         </encoder>
     </appender>
-    <root level="trace">
+    <root level="info">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="FILE" />
     </root>
