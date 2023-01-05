@@ -17,7 +17,7 @@ import io.ktor.server.routing.*
 fun Application.configureRouting(wallet: FaucetWallet) {
     routing {
         get("/") {
-            call.application.environment.log.info("root route accessed")
+            call.application.environment.log.info("/ (root) route accessed")
             call.respondText("Do. Or do not. There is no try.\n")
         }
 
@@ -25,7 +25,7 @@ fun Application.configureRouting(wallet: FaucetWallet) {
             get("/getbalance") {
                 wallet.sync()
                 val balance: String = wallet.getBalance().toString()
-                call.application.environment.log.info("getbalance route accessed with balance: $balance")
+                call.application.environment.log.info("getbalance/ route accessed with balance: $balance")
                 call.respondText(
                     text = "Balance is $balance\n",
                     contentType = ContentType.Text.Plain,
@@ -37,7 +37,7 @@ fun Application.configureRouting(wallet: FaucetWallet) {
                 // val address: String = call.receiveText()
                 val address: String = call.receive<String>()
                 val txid = wallet.sendTo(address)
-                call.application.environment.log.info("sendcoins route accessed, txid $txid")
+                call.application.environment.log.info("sendcoins/ route accessed, txid $txid")
                 call.respondText("Sending coins", ContentType.Text.Plain)
                 call.respondText(
                     text = "Sending coins to $address txid: $txid",

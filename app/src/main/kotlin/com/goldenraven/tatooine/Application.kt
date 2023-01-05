@@ -24,7 +24,7 @@ fun Application.module() {
     val changeDescriptor = environment.config.property("wallet.changeDescriptor").getString()
 
     // Initialize wallet
-    val faucetWallet: FaucetWallet = FaucetWallet
+    val faucetWallet= FaucetWallet
     faucetWallet.initializeWallet(descriptor, changeDescriptor)
     faucetWallet.sync()
 
@@ -35,7 +35,7 @@ fun Application.module() {
                 if (credentials.name == "padawan" && credentials.password == apiPassword) {
                     UserIdPrincipal(credentials.name)
                 } else {
-                    application.environment.log.warn("Bad authenticated request made with credentials $credentials")
+                    application.environment.log.warn("bad authenticated request made with credentials $credentials")
                     null
                 }
             }
