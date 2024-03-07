@@ -5,10 +5,13 @@
  
 package com.goldenraven.tatooine
 
-import io.ktor.server.application.*
-import io.ktor.server.auth.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
+import io.ktor.server.application.Application
+import io.ktor.server.application.install
+import io.ktor.server.auth.Authentication
+import io.ktor.server.auth.UserIdPrincipal
+import io.ktor.server.auth.basic
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.netty.Netty
 
 fun main() {
     embeddedServer(
@@ -21,11 +24,9 @@ fun main() {
 fun Application.module() {
     val apiPassword: String = environment.config.property("wallet.apiPassword").getString()
     val descriptor = environment.config.property("wallet.descriptor").getString()
-    val changeDescriptor = environment.config.property("wallet.changeDescriptor").getString()
 
     // Initialize wallet
-    val faucetWallet= FaucetWallet
-    faucetWallet.initializeWallet(descriptor, changeDescriptor)
+    val faucetWallet = FaucetWallet(descriptor)
     faucetWallet.sync()
 
     install(Authentication) {

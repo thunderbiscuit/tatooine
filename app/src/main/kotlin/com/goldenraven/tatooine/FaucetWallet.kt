@@ -1,54 +1,68 @@
+/*
+ * Copyright 2020-2023 thunderbiscuit and contributors.
+ * Use of this source code is governed by the Apache 2.0 license that can be found in the ./LICENSE file.
+ */
+
 package com.goldenraven.tatooine
 
-import org.bitcoindevkit.*
+import org.bitcoindevkit.Address
+import org.bitcoindevkit.Descriptor
+import org.bitcoindevkit.EsploraClient
+import org.bitcoindevkit.FeeRate
+import org.bitcoindevkit.Network
+import org.bitcoindevkit.PartiallySignedTransaction
+import org.bitcoindevkit.TxBuilder
+import org.slf4j.LoggerFactory
 import org.bitcoindevkit.Wallet as BdkWallet
 
-object FaucetWallet {
-    private lateinit var wallet: BdkWallet
-    private const val electrumURL: String = "ssl://electrum.blockstream.info:60002"
-    private const val faucetAmount: ULong = 75000uL
+class FaucetWallet(
+    descriptorString: String,
+) {
+    private val wallet: BdkWallet
+    private val logger = LoggerFactory.getLogger(FaucetWallet::class.java)
+    private val faucetAmount: ULong = 75000uL
+    private val esploraClient: EsploraClient = EsploraClient("https://esplora.testnet.kuutamo.cloud/")
 
-    private val blockchainConfig = BlockchainConfig.Electrum(
-        ElectrumConfig(
-            url = electrumURL,
-            socks5 = null,
-            retry = 10u,
-            timeout = null,
-            stopGap = 10u
-        )
-    )
-    private val blockchain: Blockchain = Blockchain(blockchainConfig)
+    init {
+        val dbFilePath = run {
+            val currentDirectory = System.getProperty("user.dir")
+            "$currentDirectory/bdk_persistence.db"
+        }
+        val descriptor: Descriptor = Descriptor(descriptorString, Network.TESTNET)
 
-    fun initializeWallet(descriptor: String, changeDescriptor: String) {
-        val database = DatabaseConfig.Sqlite(SqliteDbConfiguration("./bdk-sqlite"))
-
-        this.wallet = BdkWallet(
+        wallet = BdkWallet(
             descriptor = descriptor,
-            changeDescriptor = changeDescriptor,
-            network = Network.TESTNET,
-            databaseConfig = database,
+            changeDescriptor = null,
+            persistenceBackendPath = dbFilePath,
+            network = Network.TESTNET
         )
+        logger.info("Wallet initialized")
     }
 
     fun sync() {
-        wallet.sync(blockchain = blockchain, progress = NullProgress)
+        logger.info("Syncing wallet")
+        val update = esploraClient.fullScan(wallet, 10uL, 1uL)
+        wallet.applyUpdate(update)
     }
 
     fun getBalance(): ULong {
+        logger.info("Getting wallet balance")
         return wallet.getBalance().total
     }
 
-    fun sendTo(address: String): String {
-        val (psbt, txDetails) = TxBuilder()
-            .addRecipient(Address(address).scriptPubkey(), faucetAmount)
-            .feeRate(2.0f)
-            .finish(wallet)
-        wallet.sign(psbt)
-        blockchain.broadcast(psbt)
-        return txDetails.txid
-    }
-}
+    fun sendTo(address: String) {
+        logger.info("Sending coins to $address")
+        try {
+            val recipient = Address(address, Network.TESTNET)
+            val psbt: PartiallySignedTransaction = TxBuilder()
+                .addRecipient(recipient.scriptPubkey(), faucetAmount)
+                .feeRate(FeeRate.fromSatPerVb(4.0f))
+                .finish(wallet)
 
-object NullProgress : Progress {
-    override fun update(progress: Float, message: String?) {}
+            wallet.sign(psbt)
+            esploraClient.broadcast(psbt.extractTx())
+        } catch (e: Exception) {
+            logger.error("Failed to send coins to $address", e)
+        }
+    }
 }
