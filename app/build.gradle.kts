@@ -16,12 +16,11 @@ dependencies {
     implementation("io.ktor:ktor-server-netty:2.3.9")
     implementation("io.ktor:ktor-server-auth:2.2.1")
 
-    // Logging
+    // logging
     implementation("ch.qos.logback:logback-classic:1.5.3")
 
     // bitcoindevkit
-    // implementation("org.bitcoindevkit:bdk-jvm:0.25.0")
-    implementation("org.bitcoindevkit:bdk-jvm:1.0.0-alpha.2b-SNAPSHOT")
+    implementation("org.bitcoindevkit:bdk-jvm:1.0.0-alpha.7")
 
     // tests
     // testImplementation("io.ktor:ktor-server-tests:2.4.0")
