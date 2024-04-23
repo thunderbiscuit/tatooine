@@ -17,11 +17,14 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import kotlinx.coroutines.async
+import org.slf4j.LoggerFactory
 
 fun Application.configureRouting(wallet: FaucetWallet) {
+    val logger = LoggerFactory.getLogger("FAUCET_LOGS")
+
     routing {
         get("/") {
-            call.application.environment.log.info("/ (root) route accessed")
+            logger.info("/ (root) route accessed")
             call.respondText("Do. Or do not. There is no try.\n")
         }
 
@@ -29,7 +32,7 @@ fun Application.configureRouting(wallet: FaucetWallet) {
             get("/getbalance") {
                 wallet.sync()
                 val balance: String = wallet.getBalance().toString()
-                call.application.environment.log.info("getbalance/ route accessed with balance: $balance")
+                logger.info("getbalance/ route accessed with balance: $balance")
                 call.respondText(
                     text = "Balance is $balance\n",
                     contentType = ContentType.Text.Plain,
@@ -39,9 +42,9 @@ fun Application.configureRouting(wallet: FaucetWallet) {
 
             post("/sendcoins") {
                 val address: String = async { call.receive<String>() }.await()
-                call.application.environment.log.info("sendcoins/ route accessed for address $address")
+                logger.info("sendcoins/ route accessed for address $address")
                 wallet.sendTo(address)
-                call.application.environment.log.info("Wallet sent coins to address $address")
+                logger.info("Wallet sent coins to address $address")
                 call.respondText("Sending coins", ContentType.Text.Plain)
                 call.respondText(
                     text = "Sending coins to $address",

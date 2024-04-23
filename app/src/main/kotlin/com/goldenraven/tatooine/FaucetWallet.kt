@@ -10,7 +10,7 @@ import org.bitcoindevkit.Descriptor
 import org.bitcoindevkit.EsploraClient
 import org.bitcoindevkit.FeeRate
 import org.bitcoindevkit.Network
-import org.bitcoindevkit.PartiallySignedTransaction
+import org.bitcoindevkit.Psbt
 import org.bitcoindevkit.TxBuilder
 import org.slf4j.LoggerFactory
 import org.bitcoindevkit.Wallet as BdkWallet
@@ -19,7 +19,7 @@ class FaucetWallet(
     descriptorString: String,
 ) {
     private val wallet: BdkWallet
-    private val logger = LoggerFactory.getLogger(FaucetWallet::class.java)
+    private val logger = LoggerFactory.getLogger("FAUCET_LOGS")
     private val faucetAmount: ULong = 75000uL
     private val esploraClient: EsploraClient = EsploraClient("https://esplora.testnet.kuutamo.cloud/")
 
@@ -51,18 +51,21 @@ class FaucetWallet(
     }
 
     fun sendTo(address: String) {
-        logger.info("Sending coins to $address")
+        logger.info("Attempting to send coins to `$address`")
         try {
             val recipient = Address(address, Network.TESTNET)
-            val psbt: PartiallySignedTransaction = TxBuilder()
+            val psbt: Psbt = TxBuilder()
                 .addRecipient(recipient.scriptPubkey(), faucetAmount)
-                .feeRate(FeeRate.fromSatPerVb(4.0f))
+                .feeRate(FeeRate.fromSatPerVb(8uL))
                 .finish(wallet)
 
             wallet.sign(psbt)
             esploraClient.broadcast(psbt.extractTx())
         } catch (e: Exception) {
-            logger.error("Failed to send coins to $address", e)
+            // Log at ERROR level for simple logs
+            logger.error("Failed to send coins to `$address`: ${e.javaClass}: ${e.message}")
+            // Log with stack trace at DEBUG level for detailed debugging log file
+            logger.debug("Failed to send coins to $address", e)
         }
     }
 }

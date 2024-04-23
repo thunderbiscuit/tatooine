@@ -12,6 +12,7 @@ import io.ktor.server.auth.UserIdPrincipal
 import io.ktor.server.auth.basic
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import org.slf4j.LoggerFactory
 
 fun main() {
     embeddedServer(
@@ -24,6 +25,7 @@ fun main() {
 fun Application.module() {
     val apiPassword: String = environment.config.property("wallet.apiPassword").getString()
     val descriptor = environment.config.property("wallet.descriptor").getString()
+    val logger = LoggerFactory.getLogger("FAUCET_LOGS")
 
     // Initialize wallet
     val faucetWallet = FaucetWallet(descriptor)
@@ -36,7 +38,7 @@ fun Application.module() {
                 if (credentials.name == "padawan" && credentials.password == apiPassword) {
                     UserIdPrincipal(credentials.name)
                 } else {
-                    application.environment.log.warn("bad authenticated request made with credentials $credentials")
+                    logger.info("bad authenticated request made with credentials $credentials")
                     null
                 }
             }

@@ -5,18 +5,39 @@
         </encoder>
     </appender>
     <timestamp key="timestamp" datePattern="yyyy-MM-dd-HH:mm" />
-    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+
+    <!-- Appender for logs without stacktrace  -->
+    <appender name="FILE_NO_TRACE" class="ch.qos.logback.core.FileAppender">
         <file>
             ${HOME}/logs/tatooinelogs-${timestamp}.log
         </file>
         <encoder>
             <pattern>%date{YYYY-MM-dd HH:mm:ss.SSS} %level - %message%n</pattern>
         </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
     </appender>
-    <root level="info">
+
+    <!-- Appender for logs with stacktrace  -->
+    <appender name="FILE_WITH_TRACE" class="ch.qos.logback.core.FileAppender">
+        <file>
+            ${HOME}/logs/trace-logs-${timestamp}.log
+        </file>
+        <encoder>
+            <pattern>%date{YYYY-MM-dd HH:mm:ss.SSS} %level - %message%n</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+    </appender>
+
+    <root level="INFO">
         <appender-ref ref="STDOUT"/>
-        <appender-ref ref="FILE" />
     </root>
-    <logger name="org.eclipse.jetty" level="INFO"/>
-    <logger name="io.netty" level="INFO"/>
+    <logger name="FAUCET_LOGS" level="DEBUG" additivity="true">
+        <appender-ref ref="FILE_NO_TRACE"/>
+        <appender-ref ref="FILE_WITH_TRACE"/>
+    </logger>
+     <logger name="io.netty" level="INFO"/>
 </configuration>
