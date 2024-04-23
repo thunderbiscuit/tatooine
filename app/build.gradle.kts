@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "com.goldenraven"
-version = "0.8.0"
+version = "0.9.0"
 
 application {
     mainClass.set("io.ktor.server.netty.EngineMain")
@@ -20,7 +20,7 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.5.3")
 
     // bitcoindevkit
-    implementation("org.bitcoindevkit:bdk-jvm:1.0.0-alpha.7")
+    implementation("org.bitcoindevkit:bdk-jvm:1.0.0-alpha.9")
 
     // tests
     // testImplementation("io.ktor:ktor-server-tests:2.4.0")
