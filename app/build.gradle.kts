@@ -11,7 +11,6 @@ application {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-reflect:1.5.0")
     implementation(kotlin("stdlib"))
     implementation("io.ktor:ktor-server-netty:2.3.9")
     implementation("io.ktor:ktor-server-auth:2.2.1")
@@ -25,12 +24,6 @@ dependencies {
     // tests
     // testImplementation("io.ktor:ktor-server-tests:2.4.0")
 }
-
-kotlin.sourceSets["main"].kotlin.srcDirs("src")
-kotlin.sourceSets["test"].kotlin.srcDirs("test")
-
-sourceSets["main"].resources.srcDirs("resources")
-sourceSets["test"].resources.srcDirs("testresources")
 
 distributions {
     main {
