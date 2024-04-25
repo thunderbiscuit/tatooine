@@ -69,6 +69,7 @@ fun Application.configureRouting(wallet: FaucetWallet) {
 
             val shutdown = ShutDownUrl("") { 1 }
             get("/shutdown") {
+                logger.info("shutdown/ route accessed: shutting down server")
                 shutdown.doShutdown(call)
             }
         }
