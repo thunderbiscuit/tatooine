@@ -52,7 +52,8 @@ class FaucetWallet(
 
     fun sendTo(address: String) {
         logger.info("Attempting to send coins to `$address`")
-        try {
+
+        val psbt: Psbt = try {
             val recipient = Address(address, Network.TESTNET)
             val psbt: Psbt = TxBuilder()
                 .addRecipient(recipient.scriptPubkey(), faucetAmount)
@@ -60,12 +61,23 @@ class FaucetWallet(
                 .finish(wallet)
 
             wallet.sign(psbt)
+            psbt
+        } catch (e: Exception) {
+            // Log at ERROR level for simple logs
+            logger.error("Failed to build transaction for `$address`: ${e.javaClass}: ${e.message}")
+            // Log with stack trace at DEBUG level for detailed debugging log file
+            logger.debug("Failed to build transaction for $address", e)
+            throw e
+        }
+
+        try {
             esploraClient.broadcast(psbt.extractTx())
         } catch (e: Exception) {
             // Log at ERROR level for simple logs
-            logger.error("Failed to send coins to `$address`: ${e.javaClass}: ${e.message}")
+            logger.error("Failed to broadcast transaction for `$address`: ${e.javaClass}: ${e.message}")
             // Log with stack trace at DEBUG level for detailed debugging log file
-            logger.debug("Failed to send coins to $address", e)
+            logger.debug("Failed to broadcast transaction for $address", e)
+            throw e
         }
     }
 }

@@ -25,7 +25,11 @@ fun Application.configureRouting(wallet: FaucetWallet) {
     routing {
         get("/") {
             logger.info("/ (root) route accessed")
-            call.respondText("Do. Or do not. There is no try.\n")
+            call.respondText(
+                text = "Do. Or do not. There is no try.\n",
+                contentType = ContentType.Text.Plain,
+                status = HttpStatusCode.OK
+            )
         }
 
         authenticate("padawan-authenticated") {
@@ -43,9 +47,18 @@ fun Application.configureRouting(wallet: FaucetWallet) {
             post("/sendcoins") {
                 val address: String = async { call.receive<String>() }.await()
                 logger.info("sendcoins/ route accessed for address $address")
-                wallet.sendTo(address)
+                try {
+                    wallet.sendTo(address)
+                } catch (e: Exception) {
+                    logger.error("Error sending coins to address $address: $e")
+                    call.respondText(
+                        text = "Error sending coins to $address",
+                        contentType = ContentType.Text.Plain,
+                        status = HttpStatusCode.InternalServerError
+                    )
+                    return@post
+                }
                 logger.info("Wallet sent coins to address $address")
-                call.respondText("Sending coins", ContentType.Text.Plain)
                 call.respondText(
                     text = "Sending coins to $address",
                     contentType = ContentType.Text.Plain,
