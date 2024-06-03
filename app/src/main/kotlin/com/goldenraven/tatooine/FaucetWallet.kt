@@ -17,11 +17,12 @@ import org.bitcoindevkit.Wallet as BdkWallet
 
 class FaucetWallet(
     descriptorString: String,
+    esploraUrl: String,
 ) {
     private val wallet: BdkWallet
     private val logger = LoggerFactory.getLogger("FAUCET_LOGS")
     private val faucetAmount: ULong = 75000uL
-    private val esploraClient: EsploraClient = EsploraClient("https://esplora.testnet.kuutamo.cloud/")
+    private val esploraClient: EsploraClient = EsploraClient(esploraUrl)
 
     init {
         val dbFilePath = run {
