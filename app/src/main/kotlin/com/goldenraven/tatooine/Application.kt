@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 thunderbiscuit and contributors.
+ * Copyright 2020-2024 thunderbiscuit and contributors.
  * Use of this source code is governed by the Apache 2.0 license that can be found in the ./LICENSE file.
  */
  
@@ -26,10 +26,11 @@ fun Application.module() {
     val apiPassword: String = environment.config.property("wallet.apiPassword").getString()
     val descriptor = environment.config.property("wallet.descriptor").getString()
     val esploraUrl = environment.config.property("wallet.esploraUrl").getString()
+    val electrumUrl = environment.config.property("wallet.electrumUrl").getString()
     val logger = LoggerFactory.getLogger("FAUCET_LOGS")
 
     // Initialize wallet
-    val faucetWallet = FaucetWallet(descriptor, esploraUrl)
+    val faucetWallet = FaucetWallet(descriptor, electrumUrl)
     faucetWallet.sync()
 
     install(Authentication) {
