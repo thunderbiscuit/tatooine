@@ -7,7 +7,7 @@
     <br/>
 </div>
 
-Tatooine is a small bitcoin testnet faucet built with Ktor, a Kotlin asynchronous framework for creating microservices and web applications. The faucet was initially built for and is currently in production as part of the [Padawan Wallet](https://github.com/thunderbiscuit/padawan-wallet) project.
+Tatooine is a small bitcoin signet/testnet/regtest faucet built with Ktor, a Kotlin asynchronous framework for creating microservices and web applications. The faucet was initially built for and is currently in production as part of the [Padawan Wallet](https://github.com/thunderbiscuit/padawan-wallet) project.
 
 Tatooine can run anywhere with a JVM runtime, and is most easily deployed using containers. The `podman/` directory has the `Containerfile` necessary to build an image using Podman or Docker.  
 <br/>

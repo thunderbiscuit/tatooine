@@ -19,10 +19,10 @@ import org.bitcoindevkit.Wallet as BdkWallet
 class FaucetWallet(
     descriptorString: String,
     electrumUrl: String,
+    private val faucetAmount: ULong
 ) {
     private val wallet: BdkWallet
     private val logger = LoggerFactory.getLogger("FAUCET_LOGS")
-    private val faucetAmount: ULong = 75000uL
     // private val esploraClient: EsploraClient = EsploraClient(esploraUrl)
     private val electrumClient: ElectrumClient = ElectrumClient(electrumUrl)
 
@@ -31,13 +31,13 @@ class FaucetWallet(
             val currentDirectory = System.getProperty("user.dir")
             "$currentDirectory/bdk_persistence.db"
         }
-        val descriptor: Descriptor = Descriptor(descriptorString, Network.TESTNET)
+        val descriptor: Descriptor = Descriptor(descriptorString, Network.SIGNET)
 
         wallet = BdkWallet(
             descriptor = descriptor,
             changeDescriptor = null,
             persistenceBackendPath = dbFilePath,
-            network = Network.TESTNET
+            network = Network.SIGNET
         )
         logger.info("Wallet initialized")
         fullScan()
@@ -55,6 +55,8 @@ class FaucetWallet(
         val syncRequest = wallet.startSyncWithRevealedSpks()
         val update = electrumClient.sync(syncRequest, 10uL, false)
         wallet.applyUpdate(update)
+        val balance = wallet.getBalance().total.toSat()
+        logger.info("Wallet synced, balance: $balance")
     }
 
     fun getBalance(): ULong {
@@ -66,7 +68,7 @@ class FaucetWallet(
         logger.info("Attempting to send coins to `$address`")
 
         val psbt: Psbt = try {
-            val recipient = Address(address, Network.TESTNET)
+            val recipient = Address(address, Network.SIGNET)
             val psbt: Psbt = TxBuilder()
                 .addRecipient(recipient.scriptPubkey(), Amount.fromSat(faucetAmount))
                 .feeRate(FeeRate.fromSatPerVb(8uL))
