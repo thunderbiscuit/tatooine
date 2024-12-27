@@ -3,8 +3,8 @@ plugins {
     id("org.jetbrains.kotlin.jvm") version "1.9.20"
 }
 
-group = "com.goldenraven"
-version = "0.12.0"
+group = "com.coyotebitcoin"
+version = "0.13.0"
 
 application {
     mainClass.set("io.ktor.server.netty.EngineMain")

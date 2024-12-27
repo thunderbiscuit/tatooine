@@ -3,12 +3,11 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the ./LICENSE file.
  */
 
-package com.goldenraven.tatooine
+package com.coyotebitcoin.tatooine
 
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
-import io.ktor.server.application.call
 import io.ktor.server.auth.authenticate
 import io.ktor.server.engine.ShutDownUrl
 import io.ktor.server.request.receive
