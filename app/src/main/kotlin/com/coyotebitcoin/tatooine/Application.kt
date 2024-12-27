@@ -25,13 +25,14 @@ fun main() {
 fun Application.module() {
     val apiPassword: String = environment.config.property("wallet.apiPassword").getString()
     val descriptor = environment.config.property("wallet.descriptor").getString()
+    val changeDescriptor = environment.config.property("wallet.changeDescriptor").getString()
     val esploraUrl = environment.config.property("wallet.esploraUrl").getString()
     val electrumUrl = environment.config.property("wallet.electrumUrl").getString()
     val amount = environment.config.property("wallet.amount").getString().toULong()
     val logger = LoggerFactory.getLogger("FAUCET_LOGS")
 
     // Initialize wallet
-    val faucetWallet = FaucetWallet(descriptor, electrumUrl, amount)
+    val faucetWallet = FaucetWallet(descriptor, changeDescriptor, electrumUrl, amount)
     faucetWallet.sync()
 
     install(Authentication) {

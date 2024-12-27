@@ -6,18 +6,20 @@
 package com.coyotebitcoin.tatooine
 
 import org.bitcoindevkit.Address
-import org.bitcoindevkit.Amount
 import org.bitcoindevkit.Descriptor
 import org.bitcoindevkit.ElectrumClient
-import org.bitcoindevkit.FeeRate
-import org.bitcoindevkit.Network
 import org.bitcoindevkit.Psbt
 import org.bitcoindevkit.TxBuilder
-import org.slf4j.LoggerFactory
+import org.bitcoindevkit.Connection
 import org.bitcoindevkit.Wallet as BdkWallet
+import org.rustbitcoin.bitcoin.Amount
+import org.rustbitcoin.bitcoin.Network
+import org.rustbitcoin.bitcoin.FeeRate
+import org.slf4j.LoggerFactory
 
 class FaucetWallet(
     descriptorString: String,
+    changeDescriptorString: String,
     electrumUrl: String,
     private val faucetAmount: ULong
 ) {
@@ -32,12 +34,14 @@ class FaucetWallet(
             "$currentDirectory/bdk_persistence.db"
         }
         val descriptor: Descriptor = Descriptor(descriptorString, Network.SIGNET)
+        val changeDescriptor: Descriptor = Descriptor(changeDescriptorString, Network.SIGNET)
+        val connection: Connection = Connection(dbFilePath)
 
         wallet = BdkWallet(
             descriptor = descriptor,
-            changeDescriptor = null,
-            persistenceBackendPath = dbFilePath,
-            network = Network.SIGNET
+            changeDescriptor = changeDescriptor,
+            network = Network.SIGNET,
+            connection = connection,
         )
         logger.info("Wallet initialized")
         fullScan()
@@ -45,23 +49,32 @@ class FaucetWallet(
 
     private fun fullScan() {
         logger.info("First full scan of wallet")
-        val fullScanRequest = wallet.startFullScan()
-        val update = electrumClient.fullScan(fullScanRequest, 10uL, 10uL, false)
+        val fullScanRequest = wallet.startFullScan().build()
+        val update = electrumClient.fullScan(
+            fullScanRequest = fullScanRequest,
+            stopGap = 100uL,
+            batchSize = 10uL,
+            fetchPrevTxouts = true
+        )
         wallet.applyUpdate(update)
     }
 
     fun sync() {
         logger.info("Syncing wallet")
-        val syncRequest = wallet.startSyncWithRevealedSpks()
-        val update = electrumClient.sync(syncRequest, 10uL, false)
+        val syncRequest = wallet.startSyncWithRevealedSpks().build()
+        val update = electrumClient.sync(
+            syncRequest = syncRequest,
+            batchSize = 10uL,
+            fetchPrevTxouts = true
+        )
         wallet.applyUpdate(update)
-        val balance = wallet.getBalance().total.toSat()
+        val balance = wallet.balance().total.toSat()
         logger.info("Wallet synced, balance: $balance")
     }
 
     fun getBalance(): ULong {
         logger.info("Getting wallet balance")
-        return wallet.getBalance().total.toSat()
+        return wallet.balance().total.toSat()
     }
 
     fun sendTo(address: String) {
