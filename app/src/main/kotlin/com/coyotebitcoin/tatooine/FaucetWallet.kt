@@ -12,9 +12,9 @@ import org.bitcoindevkit.Psbt
 import org.bitcoindevkit.TxBuilder
 import org.bitcoindevkit.Connection
 import org.bitcoindevkit.Wallet as BdkWallet
-import org.rustbitcoin.bitcoin.Amount
-import org.rustbitcoin.bitcoin.Network
-import org.rustbitcoin.bitcoin.FeeRate
+import org.bitcoindevkit.Amount
+import org.bitcoindevkit.Network
+import org.bitcoindevkit.FeeRate
 import org.slf4j.LoggerFactory
 
 class FaucetWallet(
@@ -51,7 +51,7 @@ class FaucetWallet(
         logger.info("First full scan of wallet")
         val fullScanRequest = wallet.startFullScan().build()
         val update = electrumClient.fullScan(
-            fullScanRequest = fullScanRequest,
+            request = fullScanRequest,
             stopGap = 100uL,
             batchSize = 10uL,
             fetchPrevTxouts = true
@@ -63,7 +63,7 @@ class FaucetWallet(
         logger.info("Syncing wallet")
         val syncRequest = wallet.startSyncWithRevealedSpks().build()
         val update = electrumClient.sync(
-            syncRequest = syncRequest,
+            request = syncRequest,
             batchSize = 10uL,
             fetchPrevTxouts = true
         )
@@ -98,7 +98,7 @@ class FaucetWallet(
         }
 
         try {
-            electrumClient.broadcast(psbt.extractTx())
+            electrumClient.transactionBroadcast(psbt.extractTx())
         } catch (e: Exception) {
             // Log at ERROR level for simple logs
             logger.error("Failed to broadcast transaction for `$address`: ${e.javaClass}: ${e.message}")
