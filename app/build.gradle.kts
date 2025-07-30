@@ -1,6 +1,6 @@
 plugins {
     id("org.gradle.application")
-    id("org.jetbrains.kotlin.jvm") version "2.1.0"
+    id("org.jetbrains.kotlin.jvm") version "2.2.0"
 }
 
 group = "com.coyotebitcoin"
@@ -12,11 +12,11 @@ application {
 
 dependencies {
     implementation(kotlin("stdlib"))
-    implementation("io.ktor:ktor-server-netty:3.0.3")
-    implementation("io.ktor:ktor-server-auth:3.0.3")
+    implementation("io.ktor:ktor-server-netty:3.2.2")
+    implementation("io.ktor:ktor-server-auth:3.2.2")
 
     // logging
-    implementation("ch.qos.logback:logback-classic:1.5.3")
+    implementation("ch.qos.logback:logback-classic:1.5.18")
 
     // bitcoindevkit
     implementation("org.bitcoindevkit:bdk-jvm:1.0.0-beta.6")
