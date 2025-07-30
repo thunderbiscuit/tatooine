@@ -9,7 +9,7 @@ import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.auth.Authentication
 import io.ktor.server.auth.UserIdPrincipal
-import io.ktor.server.auth.basic
+import io.ktor.server.auth.bearer
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import org.slf4j.LoggerFactory
@@ -23,7 +23,7 @@ fun main() {
 }
 
 fun Application.module() {
-    val apiPassword: String = environment.config.property("wallet.apiPassword").getString()
+    val bearerToken: String = environment.config.property("wallet.bearerToken").getString()
     val descriptor = environment.config.property("wallet.descriptor").getString()
     val changeDescriptor = environment.config.property("wallet.changeDescriptor").getString()
     val esploraUrl = environment.config.property("wallet.esploraUrl").getString()
@@ -36,13 +36,13 @@ fun Application.module() {
     faucetWallet.sync()
 
     install(Authentication) {
-        basic(name = "padawan-authenticated") {
+        bearer {
             realm = "Access to the faucet"
-            validate { credentials ->
-                if (credentials.name == "padawan" && credentials.password == apiPassword) {
-                    UserIdPrincipal(credentials.name)
+            authenticate { tokenCredential ->
+                if (tokenCredential.token == bearerToken) {
+                    UserIdPrincipal("User")
                 } else {
-                    logger.info("bad authenticated request made with credentials $credentials")
+                    logger.info("bad authenticated request made with token ${tokenCredential.token}")
                     null
                 }
             }

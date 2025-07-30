@@ -1,7 +1,7 @@
 <div align="center">
     <h1>Tatooine Faucet</h1>
     <br/>
-    <img src="./artwork.svg" width="370px" />
+    <img src="./artwork.svg" width="370px"  alt="Tatooine logo"/>
     <br/>
     <br/>
     <br/>
@@ -9,20 +9,26 @@
 
 Tatooine is a small bitcoin faucet application built with Ktor, a Kotlin asynchronous framework for creating microservices and web applications. The faucet was initially built for and is currently in production as part of the [Padawan Wallet](https://padawanwallet.com) project.
 
-Tatooine can run anywhere with a JVM runtime, and is most easily deployed using containers. The `podman/` directory has the `Containerfile` necessary to build an image using Podman or Docker.  
+Tatooine can run anywhere with a JVM runtime and is most easily deployed using containers. The `podman/` directory has the `Containerfile` necessary to build an image using Podman or Docker.  
+
 <br/>
 
 ## Build the faucet
 
 You can build the project by running the `distTar` task like so
+
 ```shell
 ./gradlew distTar
 ```
+
 This will output a tarball in `/app/build/distributions/tatooine-0.8.0.tar` which you can extract anywhere you'd like using something like
+
 ```shell
 tar --extract --verbose --file ./app/build/distributions/tatooine-0.8.0.tar -C /target/path/for/faucet/
 ```
+
 The tarball opens up into a directory
+
 ```shell
 ❯ tree tattoine-0.8.0
 .
@@ -37,7 +43,8 @@ The tarball opens up into a directory
 
 ## Run the faucet
 
-On Linux/macOS, simply run the `tatooine` binary to start up the service:
+On Linux/macOS, run the `tatooine` binary to start up the service:
+
 ```shell
 ./tatooine-0.8.0/bin/tatooine
 ```
@@ -87,16 +94,17 @@ scp -P 22 -r ./podman/ user@<ip>:/home/user/
 ## Usage
 
 Most of the routes for the server require authentication, and the `/sendcoins` route requires a POST request. Here are examples for all 4 routes:
+
 ```shell
 # /
 curl http://127.0.0.1:8080/
 
 # /getbalance
-curl --user padawan:password http://127.0.0.1:8080/getbalance
+curl --header "Authorization: Bearer token" http://127.0.0.1:8080/getbalance
 
 # /sendcoins
-curl -X POST --data "<bitcoin address>" --user padawan:password http://127.0.0.1:8080/sendcoins
+curl -X POST --data "<bitcoin address>" --header "Authorization: Bearer token" http://127.0.0.1:8080/sendcoins
 
 # /shutdown
-curl --user padawan:password http://127.0.0.1:8080/shutdown
+curl --header "Authorization: Bearer token" http://127.0.0.1:8080/shutdown
 ```

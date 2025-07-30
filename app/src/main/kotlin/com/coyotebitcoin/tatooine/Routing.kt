@@ -31,7 +31,7 @@ fun Application.configureRouting(wallet: FaucetWallet) {
             )
         }
 
-        authenticate("padawan-authenticated") {
+        authenticate {
             get("/getbalance") {
                 wallet.sync()
                 val balance: String = wallet.getBalance().toString()
