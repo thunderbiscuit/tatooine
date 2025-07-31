@@ -19,7 +19,7 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.5.18")
 
     // bitcoindevkit
-    implementation("org.bitcoindevkit:bdk-jvm:1.2.0")
+    implementation("org.bitcoindevkit:bdk-jvm:2.0.0")
 
     // tests
     // testImplementation("io.ktor:ktor-server-tests:2.4.0")

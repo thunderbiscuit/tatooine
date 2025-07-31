@@ -10,7 +10,7 @@ import org.bitcoindevkit.Descriptor
 import org.bitcoindevkit.ElectrumClient
 import org.bitcoindevkit.Psbt
 import org.bitcoindevkit.TxBuilder
-import org.bitcoindevkit.Connection
+import org.bitcoindevkit.Persister
 import org.bitcoindevkit.Wallet as BdkWallet
 import org.bitcoindevkit.Amount
 import org.bitcoindevkit.Network
@@ -35,13 +35,13 @@ class FaucetWallet(
         }
         val descriptor: Descriptor = Descriptor(descriptorString, Network.SIGNET)
         val changeDescriptor: Descriptor = Descriptor(changeDescriptorString, Network.SIGNET)
-        val connection: Connection = Connection(dbFilePath)
+        val db: Persister = Persister.newSqlite(dbFilePath)
 
         wallet = BdkWallet(
             descriptor = descriptor,
             changeDescriptor = changeDescriptor,
             network = Network.SIGNET,
-            connection = connection,
+            persister = db,
         )
         logger.info("Wallet initialized")
         fullScan()
