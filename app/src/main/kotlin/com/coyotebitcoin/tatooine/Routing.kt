@@ -33,9 +33,10 @@ fun Application.configureRouting(wallet: FaucetWallet) {
             }
 
             get("/getbalance") {
+                logger.debug("'getbalance' route accessed")
                 wallet.sync()
                 val balance: String = wallet.getBalance().toString()
-                logger.info("getbalance/ route accessed with balance: $balance")
+
                 call.respondText(
                     text = "Balance is $balance\n",
                     contentType = ContentType.Text.Plain,
@@ -44,12 +45,11 @@ fun Application.configureRouting(wallet: FaucetWallet) {
             }
 
             post("/sendcoins") {
+                logger.debug("'sendcoins' route accessed")
                 val address: String = async { call.receive<String>() }.await()
-                logger.info("sendcoins/ route accessed for address $address")
                 try {
                     wallet.sendTo(address)
                 } catch (e: Exception) {
-                    logger.error("Error sending coins to address $address: $e")
                     call.respondText(
                         text = "Error sending coins to $address",
                         contentType = ContentType.Text.Plain,
@@ -57,7 +57,6 @@ fun Application.configureRouting(wallet: FaucetWallet) {
                     )
                     return@post
                 }
-                logger.info("Wallet sent coins to address $address")
                 call.respondText(
                     text = "Sending coins to $address",
                     contentType = ContentType.Text.Plain,
@@ -68,7 +67,7 @@ fun Application.configureRouting(wallet: FaucetWallet) {
 
             val shutdown = ShutDownUrl("") { 1 }
             get("/shutdown") {
-                logger.info("shutdown/ route accessed: shutting down server")
+                logger.info("'shutdown' route accessed: shutting down server")
                 shutdown.doShutdown(call)
             }
         }

@@ -42,7 +42,7 @@ fun Application.module() {
                 if (tokenCredential.token == bearerToken) {
                     UserIdPrincipal("User")
                 } else {
-                    logger.info("bad authenticated request made with token ${tokenCredential.token}")
+                    logger.warn("bad authenticated request made with token '${tokenCredential.token}'")
                     null
                 }
             }

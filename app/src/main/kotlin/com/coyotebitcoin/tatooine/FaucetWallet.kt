@@ -69,16 +69,15 @@ class FaucetWallet(
         )
         wallet.applyUpdate(update)
         val balance = wallet.balance().total.toSat()
-        logger.info("Wallet synced, balance: $balance")
+        logger.info("Wallet synced. Balance: $balance")
     }
 
     fun getBalance(): ULong {
-        logger.info("Getting wallet balance")
         return wallet.balance().total.toSat()
     }
 
     fun sendTo(address: String) {
-        logger.info("Attempting to send coins to `$address`")
+        logger.info("Attempting to send coins to address '$address'")
 
         val psbt: Psbt = try {
             val recipient = Address(address, Network.SIGNET)
@@ -91,7 +90,7 @@ class FaucetWallet(
             psbt
         } catch (e: Exception) {
             // Log at ERROR level for simple logs
-            logger.error("Failed to build transaction for `$address`: ${e.javaClass}: ${e.message}")
+            logger.error("Failed to build transaction for address '$address': ${e.javaClass}: ${e.message}")
             // Log with stack trace at DEBUG level for detailed debugging log file
             logger.debug("Failed to build transaction for $address", e)
             throw e
@@ -99,6 +98,7 @@ class FaucetWallet(
 
         try {
             electrumClient.transactionBroadcast(psbt.extractTx())
+            logger.info("Faucet sent coins to address '$address'")
         } catch (e: Exception) {
             // Log at ERROR level for simple logs
             logger.error("Failed to broadcast transaction for `$address`: ${e.javaClass}: ${e.message}")

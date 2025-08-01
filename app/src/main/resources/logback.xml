@@ -6,38 +6,43 @@
     </appender>
     <timestamp key="timestamp" datePattern="yyyy-MM-dd-HH:mm" />
 
-    <!-- Appender for logs without stacktrace  -->
-    <appender name="FILE_NO_TRACE" class="ch.qos.logback.core.FileAppender">
+    <!-- Appender for logs info and up  -->
+    <appender name="FILE_INFO_UP" class="ch.qos.logback.core.FileAppender">
         <file>
             ${HOME}/logs/tatooinelogs-${timestamp}.log
         </file>
         <encoder>
-            <pattern>%date{YYYY-MM-dd HH:mm:ss.SSS} %level - %message%n</pattern>
+            <pattern>%date{YYYY-MM-dd HH:mm:ss} %-5level - %message%n</pattern>
         </encoder>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>INFO</level>
         </filter>
     </appender>
 
-    <!-- Appender for logs with stacktrace  -->
-    <appender name="FILE_WITH_TRACE" class="ch.qos.logback.core.FileAppender">
+    <!-- Appender for logs with trace level  -->
+    <appender name="FILE_ALL" class="ch.qos.logback.core.FileAppender">
         <file>
             ${HOME}/logs/trace-logs-${timestamp}.log
         </file>
         <encoder>
-            <pattern>%date{YYYY-MM-dd HH:mm:ss.SSS} %level - %message%n</pattern>
+            <pattern>%date{YYYY-MM-dd HH:mm:ss} %-5level - %message%n</pattern>
         </encoder>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>DEBUG</level>
+            <level>TRACE</level>
         </filter>
     </appender>
 
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
     </root>
-    <logger name="FAUCET_LOGS" level="DEBUG" additivity="true">
-        <appender-ref ref="FILE_NO_TRACE"/>
-        <appender-ref ref="FILE_WITH_TRACE"/>
+
+    <!-- This named logger is what you reference in your code. -->
+    <!-- val logger = LoggerFactory.getLogger("FAUCET_LOGS") -->
+    <!-- It lets through anything at TRACE level and above, in other words everything. -->
+    <!-- From there, the FILE_INFO_UP and FILE_ALL appenders filter what they need. -->
+    <logger name="FAUCET_LOGS" level="TRACE" additivity="true">
+        <appender-ref ref="FILE_INFO_UP"/>
+        <appender-ref ref="FILE_ALL"/>
     </logger>
-     <logger name="io.netty" level="INFO"/>
+    <logger name="io.netty" level="INFO"/>
 </configuration>
