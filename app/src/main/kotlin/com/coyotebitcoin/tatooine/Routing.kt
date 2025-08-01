@@ -22,16 +22,16 @@ fun Application.configureRouting(wallet: FaucetWallet) {
     val logger = LoggerFactory.getLogger("FAUCET_LOGS")
 
     routing {
-        get("/") {
-            logger.info("/ (root) route accessed")
-            call.respondText(
-                text = "Do. Or do not. There is no try.\n",
-                contentType = ContentType.Text.Plain,
-                status = HttpStatusCode.OK
-            )
-        }
-
         authenticate {
+            get("/") {
+                logger.info("'/' (root) route accessed")
+                call.respondText(
+                    text = "Do. Or do not. There is no try.\n",
+                    contentType = ContentType.Text.Plain,
+                    status = HttpStatusCode.OK
+                )
+            }
+
             get("/getbalance") {
                 wallet.sync()
                 val balance: String = wallet.getBalance().toString()

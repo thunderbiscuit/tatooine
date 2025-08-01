@@ -37,7 +37,7 @@ fun Application.module() {
 
     install(Authentication) {
         bearer {
-            realm = "Access to the faucet"
+            realm = "Protected"
             authenticate { tokenCredential ->
                 if (tokenCredential.token == bearerToken) {
                     UserIdPrincipal("User")
