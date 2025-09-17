@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "com.coyotebitcoin"
-version = "0.13.0"
+version = "0.14.0"
 
 application {
     mainClass.set("io.ktor.server.netty.EngineMain")
