@@ -16,7 +16,7 @@ dependencies {
     implementation("io.ktor:ktor-server-auth:3.2.2")
 
     // logging
-    implementation("ch.qos.logback:logback-classic:1.5.18")
+    implementation("ch.qos.logback:logback-classic:1.5.21")
 
     // bitcoindevkit
     implementation("org.bitcoindevkit:bdk-jvm:2.2.0")

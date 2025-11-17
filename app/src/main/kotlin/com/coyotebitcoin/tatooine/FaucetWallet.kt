@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory
 
 class FaucetWallet(
     descriptorString: String,
-    changeDescriptorString: String,
     electrumUrl: String,
     private val faucetAmount: ULong
 ) {
@@ -34,12 +33,10 @@ class FaucetWallet(
             "$currentDirectory/bdk_persistence.db"
         }
         val descriptor: Descriptor = Descriptor(descriptorString, Network.SIGNET)
-        val changeDescriptor: Descriptor = Descriptor(changeDescriptorString, Network.SIGNET)
         val db: Persister = Persister.newSqlite(dbFilePath)
 
-        wallet = BdkWallet(
+        wallet = BdkWallet.createSingle(
             descriptor = descriptor,
-            changeDescriptor = changeDescriptor,
             network = Network.SIGNET,
             persister = db,
         )
