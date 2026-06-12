@@ -4,6 +4,7 @@ dependencies:
   # Ktor
   - io.ktor:ktor-server-netty
   - io.ktor:ktor-server-auth
+  - io.ktor:ktor-server-config-yaml
   # Logging
   - ch.qos.logback:logback-classic:1.5.21
   # Bitcoin
