@@ -7,5 +7,5 @@ build:
 run:
   ./kotlin run
 
-#install:
-#  ./gradlew installDist
+package:
+  ./kotlin package --format executable-jar
