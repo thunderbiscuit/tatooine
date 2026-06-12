@@ -10,16 +10,11 @@ import io.ktor.server.application.install
 import io.ktor.server.auth.Authentication
 import io.ktor.server.auth.UserIdPrincipal
 import io.ktor.server.auth.bearer
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.netty.Netty
+import io.ktor.server.netty.EngineMain
 import org.slf4j.LoggerFactory
 
-fun main() {
-    embeddedServer(
-        Netty, port = 8080,
-        host = "0.0.0.0",
-        module = Application::module
-    ).start(wait = true)
+fun main(args: Array<String>) {
+    EngineMain.main(args)
 }
 
 fun Application.module() {

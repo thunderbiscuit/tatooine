@@ -2,10 +2,10 @@ default:
   just --list
 
 build:
-  ./gradlew build
+  ./kotlin build
 
 run:
-  ./gradlew run
+  ./kotlin run
 
-install:
-  ./gradlew installDist
+#install:
+#  ./gradlew installDist
