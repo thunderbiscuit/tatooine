@@ -8,7 +8,7 @@ dependencies:
   # Logging
   - ch.qos.logback:logback-classic:1.5.21
   # Bitcoin
-  - org.bitcoindevkit:bdk-jvm:2.2.0
+  - org.bitcoindevkit:bdk-jvm:3.0.0
 
 settings:
   kotlin:

@@ -15,6 +15,7 @@ import org.bitcoindevkit.Wallet as BdkWallet
 import org.bitcoindevkit.Amount
 import org.bitcoindevkit.Network
 import org.bitcoindevkit.FeeRate
+import org.bitcoindevkit.NetworkKind
 import org.slf4j.LoggerFactory
 
 class FaucetWallet(
@@ -32,7 +33,7 @@ class FaucetWallet(
             val currentDirectory = System.getProperty("user.dir")
             "$currentDirectory/bdk_persistence.db"
         }
-        val descriptor: Descriptor = Descriptor(descriptorString, Network.SIGNET)
+        val descriptor: Descriptor = Descriptor(descriptorString, NetworkKind.TEST)
         val db: Persister = Persister.newSqlite(dbFilePath)
 
         wallet = BdkWallet.createSingle(
