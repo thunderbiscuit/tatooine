@@ -20,28 +20,29 @@ import org.slf4j.LoggerFactory
 
 class FaucetWallet(
     descriptorString: String,
+    private val network: Network,
     electrumUrl: String,
     private val faucetAmount: ULong
 ) {
     private val wallet: BdkWallet
     private val logger = LoggerFactory.getLogger("FAUCET_LOGS")
-    // private val esploraClient: EsploraClient = EsploraClient(esploraUrl)
     private val electrumClient: ElectrumClient = ElectrumClient(electrumUrl)
 
     init {
         val dbFilePath = run {
             val currentDirectory = System.getProperty("user.dir")
-            "$currentDirectory/bdk_persistence.db"
+            "$currentDirectory/bdk_persistence.sqlite3"
         }
         val descriptor: Descriptor = Descriptor(descriptorString, NetworkKind.TEST)
         val db: Persister = Persister.newSqlite(dbFilePath)
 
         wallet = BdkWallet.createSingle(
             descriptor = descriptor,
-            network = Network.SIGNET,
+            network = network,
             persister = db,
         )
         logger.info("Wallet initialized")
+        logger.info("Connecting to Electrum server at $electrumUrl")
         fullScan()
     }
 
@@ -78,7 +79,7 @@ class FaucetWallet(
         logger.info("Attempting to send coins to address '$address'")
 
         val psbt: Psbt = try {
-            val recipient = Address(address, Network.SIGNET)
+            val recipient = Address(address, network)
             val psbt: Psbt = TxBuilder()
                 .addRecipient(recipient.scriptPubkey(), Amount.fromSat(faucetAmount))
                 .feeRate(FeeRate.fromSatPerVb(8uL))
@@ -105,4 +106,12 @@ class FaucetWallet(
             throw e
         }
     }
+}
+
+fun String.toNetwork(): Network = when (this) {
+    "REGTEST"            -> Network.REGTEST
+    "SIGNET"             -> Network.SIGNET
+    "TESTNET"            -> Network.TESTNET
+    "TESTNET4"           -> Network.TESTNET4
+    else -> throw IllegalArgumentException("Unsupported network: $this")
 }

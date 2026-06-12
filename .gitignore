@@ -12,3 +12,4 @@
 /app/build/
 /.settings/
 .DS_Store
+*.sqlite3

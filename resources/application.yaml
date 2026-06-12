@@ -6,9 +6,10 @@ ktor:
     modules:
       - com.coyotebitcoin.tatooine.ApplicationKt.module
 
+# This config defaults to a local Regtest setup
 wallet:
   bearerToken: "token"
   descriptor: "wpkh(tprv8ZgxMBicQKsPeqkztELFj4aDR1P3U2fc8k56wgujCurY8pmKDPGN5RKjF1ENNWxcWygdFuiWzBWT1zP2AQcSjZC3u9UfQjciisdLwL58kdk/84h/1h/0h/0/*)"
-  esploraUrl: "http://signet.bitcoindevkit.net"
-  electrumUrl: "ssl://mempool.space:60602"
+  network: "REGTEST" # One of REGTEST, SIGNET, TESTNET, TESTNET4
+  electrumUrl: "tcp://127.0.0.1:60401"
   amount: 5000
