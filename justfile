@@ -9,3 +9,6 @@ run:
 
 package:
   ./kotlin package --format executable-jar
+
+format:
+  ktfmt --kotlinlang-style src/ test/

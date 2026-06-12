@@ -6,23 +6,23 @@
 package com.coyotebitcoin.tatooine
 
 import org.bitcoindevkit.Address
+import org.bitcoindevkit.Amount
 import org.bitcoindevkit.Descriptor
 import org.bitcoindevkit.ElectrumClient
+import org.bitcoindevkit.FeeRate
+import org.bitcoindevkit.Network
+import org.bitcoindevkit.NetworkKind
+import org.bitcoindevkit.Persister
 import org.bitcoindevkit.Psbt
 import org.bitcoindevkit.TxBuilder
-import org.bitcoindevkit.Persister
 import org.bitcoindevkit.Wallet as BdkWallet
-import org.bitcoindevkit.Amount
-import org.bitcoindevkit.Network
-import org.bitcoindevkit.FeeRate
-import org.bitcoindevkit.NetworkKind
 import org.slf4j.LoggerFactory
 
 class FaucetWallet(
     descriptorString: String,
     private val network: Network,
     electrumUrl: String,
-    private val faucetAmount: ULong
+    private val faucetAmount: ULong,
 ) {
     private val wallet: BdkWallet
     private val logger = LoggerFactory.getLogger("FAUCET_LOGS")
@@ -36,11 +36,12 @@ class FaucetWallet(
         val descriptor: Descriptor = Descriptor(descriptorString, NetworkKind.TEST)
         val db: Persister = Persister.newSqlite(dbFilePath)
 
-        wallet = BdkWallet.createSingle(
-            descriptor = descriptor,
-            network = network,
-            persister = db,
-        )
+        wallet =
+            BdkWallet.createSingle(
+                descriptor = descriptor,
+                network = network,
+                persister = db,
+            )
         logger.info("Wallet initialized")
         logger.info("Connecting to Electrum server at $electrumUrl")
         fullScan()
@@ -49,23 +50,25 @@ class FaucetWallet(
     private fun fullScan() {
         logger.info("First full scan of wallet")
         val fullScanRequest = wallet.startFullScan().build()
-        val update = electrumClient.fullScan(
-            request = fullScanRequest,
-            stopGap = 100uL,
-            batchSize = 10uL,
-            fetchPrevTxouts = true
-        )
+        val update =
+            electrumClient.fullScan(
+                request = fullScanRequest,
+                stopGap = 100uL,
+                batchSize = 10uL,
+                fetchPrevTxouts = true,
+            )
         wallet.applyUpdate(update)
     }
 
     fun sync() {
         logger.info("Syncing wallet")
         val syncRequest = wallet.startSyncWithRevealedSpks().build()
-        val update = electrumClient.sync(
-            request = syncRequest,
-            batchSize = 10uL,
-            fetchPrevTxouts = true
-        )
+        val update =
+            electrumClient.sync(
+                request = syncRequest,
+                batchSize = 10uL,
+                fetchPrevTxouts = true,
+            )
         wallet.applyUpdate(update)
         val balance = wallet.balance().total.toSat()
         logger.info("Wallet synced. Balance: $balance")
@@ -78,29 +81,35 @@ class FaucetWallet(
     fun sendTo(address: String) {
         logger.info("Attempting to send coins to address '$address'")
 
-        val psbt: Psbt = try {
-            val recipient = Address(address, network)
-            val psbt: Psbt = TxBuilder()
-                .addRecipient(recipient.scriptPubkey(), Amount.fromSat(faucetAmount))
-                .feeRate(FeeRate.fromSatPerVb(8uL))
-                .finish(wallet)
+        val psbt: Psbt =
+            try {
+                val recipient = Address(address, network)
+                val psbt: Psbt =
+                    TxBuilder()
+                        .addRecipient(recipient.scriptPubkey(), Amount.fromSat(faucetAmount))
+                        .feeRate(FeeRate.fromSatPerVb(8uL))
+                        .finish(wallet)
 
-            wallet.sign(psbt)
-            psbt
-        } catch (e: Exception) {
-            // Log at ERROR level for simple logs
-            logger.error("Failed to build transaction for address '$address': ${e.javaClass}: ${e.message}")
-            // Log with stack trace at DEBUG level for detailed debugging log file
-            logger.debug("Failed to build transaction for $address", e)
-            throw e
-        }
+                wallet.sign(psbt)
+                psbt
+            } catch (e: Exception) {
+                // Log at ERROR level for simple logs
+                logger.error(
+                    "Failed to build transaction for address '$address': ${e.javaClass}: ${e.message}"
+                )
+                // Log with stack trace at DEBUG level for detailed debugging log file
+                logger.debug("Failed to build transaction for $address", e)
+                throw e
+            }
 
         try {
             electrumClient.transactionBroadcast(psbt.extractTx())
             logger.info("Faucet sent coins to address '$address'")
         } catch (e: Exception) {
             // Log at ERROR level for simple logs
-            logger.error("Failed to broadcast transaction for `$address`: ${e.javaClass}: ${e.message}")
+            logger.error(
+                "Failed to broadcast transaction for `$address`: ${e.javaClass}: ${e.message}"
+            )
             // Log with stack trace at DEBUG level for detailed debugging log file
             logger.debug("Failed to broadcast transaction for $address", e)
             throw e
@@ -108,10 +117,11 @@ class FaucetWallet(
     }
 }
 
-fun String.toNetwork(): Network = when (this) {
-    "REGTEST"            -> Network.REGTEST
-    "SIGNET"             -> Network.SIGNET
-    "TESTNET"            -> Network.TESTNET
-    "TESTNET4"           -> Network.TESTNET4
-    else -> throw IllegalArgumentException("Unsupported network: $this")
-}
+fun String.toNetwork(): Network =
+    when (this) {
+        "REGTEST" -> Network.REGTEST
+        "SIGNET" -> Network.SIGNET
+        "TESTNET" -> Network.TESTNET
+        "TESTNET4" -> Network.TESTNET4
+        else -> throw IllegalArgumentException("Unsupported network: $this")
+    }

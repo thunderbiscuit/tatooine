@@ -28,7 +28,7 @@ fun Application.configureRouting(wallet: FaucetWallet) {
                 call.respondText(
                     text = "Do. Or do not. There is no try.\n",
                     contentType = ContentType.Text.Plain,
-                    status = HttpStatusCode.OK
+                    status = HttpStatusCode.OK,
                 )
             }
 
@@ -40,7 +40,7 @@ fun Application.configureRouting(wallet: FaucetWallet) {
                 call.respondText(
                     text = "Balance is $balance\n",
                     contentType = ContentType.Text.Plain,
-                    status = HttpStatusCode.OK
+                    status = HttpStatusCode.OK,
                 )
             }
 
@@ -53,14 +53,14 @@ fun Application.configureRouting(wallet: FaucetWallet) {
                     call.respondText(
                         text = "Error sending coins to $address",
                         contentType = ContentType.Text.Plain,
-                        status = HttpStatusCode.InternalServerError
+                        status = HttpStatusCode.InternalServerError,
                     )
                     return@post
                 }
                 call.respondText(
                     text = "Sending coins to $address",
                     contentType = ContentType.Text.Plain,
-                    status = HttpStatusCode.OK
+                    status = HttpStatusCode.OK,
                 )
                 wallet.sync()
             }

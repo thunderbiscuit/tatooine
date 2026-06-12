@@ -2,7 +2,7 @@
  * Copyright 2020-2026 thunderbiscuit and contributors.
  * Use of this source code is governed by the Apache 2.0 license that can be found in the ./LICENSE file.
  */
- 
+
 package com.coyotebitcoin.tatooine
 
 import io.ktor.server.application.Application
@@ -37,7 +37,9 @@ fun Application.module() {
                 if (tokenCredential.token == bearerToken) {
                     UserIdPrincipal("User")
                 } else {
-                    logger.warn("bad authenticated request made with token '${tokenCredential.token}'")
+                    logger.warn(
+                        "bad authenticated request made with token '${tokenCredential.token}'"
+                    )
                     null
                 }
             }
