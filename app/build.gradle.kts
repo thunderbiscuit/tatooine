@@ -12,8 +12,8 @@ application {
 
 dependencies {
     implementation(kotlin("stdlib"))
-    implementation("io.ktor:ktor-server-netty:3.2.2")
-    implementation("io.ktor:ktor-server-auth:3.2.2")
+    implementation("io.ktor:ktor-server-netty:3.5.0")
+    implementation("io.ktor:ktor-server-auth:3.5.0")
 
     // logging
     implementation("ch.qos.logback:logback-classic:1.5.21")
