@@ -5,6 +5,13 @@
 
 package com.coyotebitcoin.tatooine
 
+import java.time.Instant
+import java.time.LocalDate
+import java.time.YearMonth
+import java.time.ZoneOffset
+import java.time.temporal.ChronoUnit
+import java.util.concurrent.CopyOnWriteArrayList
+import kotlinx.serialization.Serializable
 import org.bitcoindevkit.Address
 import org.bitcoindevkit.Amount
 import org.bitcoindevkit.Descriptor
@@ -18,6 +25,16 @@ import org.bitcoindevkit.TxBuilder
 import org.bitcoindevkit.Wallet as BdkWallet
 import org.slf4j.LoggerFactory
 
+@Serializable data class MonthlyStats(val month: String, val count: Int)
+
+@Serializable
+data class FaucetReport(
+    val balanceSats: ULong,
+    val last7Days: Int,
+    val last30Days: Int,
+    val months: List<MonthlyStats>,
+)
+
 class FaucetWallet(
     descriptorString: String,
     private val network: Network,
@@ -27,6 +44,7 @@ class FaucetWallet(
     private val wallet: BdkWallet
     private val logger = LoggerFactory.getLogger("FAUCET_LOGS")
     private val electrumClient: ElectrumClient = ElectrumClient(electrumUrl)
+    private val transactionTimestamps: CopyOnWriteArrayList<Instant> = CopyOnWriteArrayList()
 
     init {
         val dbFilePath = run {
@@ -78,6 +96,34 @@ class FaucetWallet(
         return wallet.balance().total.toSat()
     }
 
+    fun getReport(): FaucetReport {
+        val now = Instant.now()
+        val snapshots = transactionTimestamps.toList()
+
+        val last7Days = snapshots.count { it.isAfter(now.minus(7, ChronoUnit.DAYS)) }
+        val last30Days = snapshots.count { it.isAfter(now.minus(30, ChronoUnit.DAYS)) }
+
+        val today = LocalDate.now(ZoneOffset.UTC)
+        val currentMonth = YearMonth.of(today.year, today.month)
+        val months =
+            (0L..2L).map { offset ->
+                val month = currentMonth.minusMonths(offset)
+                val start = month.atDay(1).atStartOfDay(ZoneOffset.UTC).toInstant()
+                val end = month.atEndOfMonth().plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant()
+                MonthlyStats(
+                    month = month.toString(),
+                    count = snapshots.count { it >= start && it < end },
+                )
+            }
+
+        return FaucetReport(
+            balanceSats = getBalance(),
+            last7Days = last7Days,
+            last30Days = last30Days,
+            months = months,
+        )
+    }
+
     fun sendTo(address: String) {
         logger.info("Attempting to send coins to address '$address'")
 
@@ -104,6 +150,7 @@ class FaucetWallet(
 
         try {
             electrumClient.transactionBroadcast(psbt.extractTx())
+            transactionTimestamps.add(Instant.now())
             logger.info("Faucet sent coins to address '$address'")
         } catch (e: Exception) {
             // Log at ERROR level for simple logs

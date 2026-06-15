@@ -11,6 +11,7 @@ import io.ktor.server.application.Application
 import io.ktor.server.auth.authenticate
 import io.ktor.server.engine.ShutDownUrl
 import io.ktor.server.request.receive
+import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
@@ -63,6 +64,12 @@ fun Application.configureRouting(wallet: FaucetWallet) {
                     status = HttpStatusCode.OK,
                 )
                 wallet.sync()
+            }
+
+            get("/report") {
+                logger.debug("'report' route accessed")
+                wallet.sync()
+                call.respond<FaucetReport>(wallet.getReport())
             }
 
             val shutdown = ShutDownUrl(url = "", exitCode = { 0 })

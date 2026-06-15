@@ -5,12 +5,14 @@
 
 package com.coyotebitcoin.tatooine
 
+import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.auth.Authentication
 import io.ktor.server.auth.UserIdPrincipal
 import io.ktor.server.auth.bearer
 import io.ktor.server.netty.EngineMain
+import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import org.bitcoindevkit.Network
 import org.slf4j.LoggerFactory
 
@@ -29,6 +31,10 @@ fun Application.module() {
     // Initialize wallet
     val faucetWallet = FaucetWallet(descriptor, network, electrumUrl, amount)
     faucetWallet.sync()
+
+    install(ContentNegotiation) {
+        json()
+    }
 
     install(Authentication) {
         bearer {
