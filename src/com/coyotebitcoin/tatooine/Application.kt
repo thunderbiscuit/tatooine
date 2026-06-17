@@ -29,7 +29,11 @@ fun Application.module() {
     val logger = LoggerFactory.getLogger("FAUCET_LOGS")
 
     // Initialize wallet
-    val faucetWallet = FaucetWallet(descriptor, network, electrumUrl, amount)
+    val dbFilePath = run {
+        val currentDirectory = System.getProperty("user.dir")
+        "$currentDirectory/bdk_persistence.sqlite3"
+    }
+    val faucetWallet = FaucetWallet(descriptor, network, electrumUrl, amount, dbFilePath)
     faucetWallet.sync()
 
     install(ContentNegotiation) {

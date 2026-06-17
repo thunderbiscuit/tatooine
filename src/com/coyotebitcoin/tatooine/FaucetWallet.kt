@@ -40,20 +40,16 @@ class FaucetWallet(
     private val network: Network,
     electrumUrl: String,
     private val faucetAmount: ULong,
+    dbFilePath: String,
 ) {
     private val wallet: BdkWallet
     private val logger = LoggerFactory.getLogger("FAUCET_LOGS")
     private val electrumClient: ElectrumClient = ElectrumClient(electrumUrl)
     private val transactionTimestamps: CopyOnWriteArrayList<Instant> = CopyOnWriteArrayList()
+    private val db: Persister = Persister.newSqlite(dbFilePath)
+    private val descriptor: Descriptor = Descriptor(descriptorString, NetworkKind.TEST)
 
     init {
-        val dbFilePath = run {
-            val currentDirectory = System.getProperty("user.dir")
-            "$currentDirectory/bdk_persistence.sqlite3"
-        }
-        val descriptor: Descriptor = Descriptor(descriptorString, NetworkKind.TEST)
-        val db: Persister = Persister.newSqlite(dbFilePath)
-
         wallet =
             BdkWallet.createSingle(
                 descriptor = descriptor,
@@ -76,6 +72,7 @@ class FaucetWallet(
                 fetchPrevTxouts = true,
             )
         wallet.applyUpdate(update)
+        wallet.persist(db)
     }
 
     fun sync() {
@@ -88,6 +85,7 @@ class FaucetWallet(
                 fetchPrevTxouts = true,
             )
         wallet.applyUpdate(update)
+        wallet.persist(db)
         val balance = wallet.balance().total.toSat()
         logger.info("Wallet synced. Balance: $balance")
     }
