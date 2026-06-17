@@ -16,7 +16,9 @@ import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 
 fun Application.configureRouting(wallet: FaucetWallet) {
@@ -35,7 +37,6 @@ fun Application.configureRouting(wallet: FaucetWallet) {
 
             get("/getbalance") {
                 logger.debug("'getbalance' route accessed")
-                wallet.sync()
                 val balance: String = wallet.getBalance().toString()
 
                 call.respondText(
@@ -49,7 +50,7 @@ fun Application.configureRouting(wallet: FaucetWallet) {
                 logger.debug("'sendcoins' route accessed")
                 val address: String = async { call.receive<String>() }.await()
                 try {
-                    wallet.sendTo(address)
+                    withContext(Dispatchers.IO) { wallet.sendTo(address) }
                 } catch (e: Exception) {
                     call.respondText(
                         text = "Error sending coins to $address",
@@ -63,12 +64,12 @@ fun Application.configureRouting(wallet: FaucetWallet) {
                     contentType = ContentType.Text.Plain,
                     status = HttpStatusCode.OK,
                 )
-                wallet.sync()
+                withContext(Dispatchers.IO) { wallet.sync() }
             }
 
             get("/report") {
                 logger.debug("'report' route accessed")
-                wallet.sync()
+                withContext(Dispatchers.IO) { wallet.sync() }
                 call.respond<FaucetReport>(wallet.getReport())
             }
 
