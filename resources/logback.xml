@@ -36,11 +36,9 @@
         <appender-ref ref="STDOUT"/>
     </root>
 
-    <!-- This named logger is what you reference in your code. -->
-    <!-- val logger = LoggerFactory.getLogger("FAUCET_LOGS") -->
-    <!-- It lets through anything at TRACE level and above, in other words everything. -->
-    <!-- From there, the FILE_INFO_UP and FILE_ALL appenders filter what they need. -->
-    <logger name="FAUCET_LOGS" level="TRACE" additivity="true">
+    <!-- Captures all loggers under the tatooine package (KotlinLogging.logger {} names by class). -->
+    <!-- Lets through everything at TRACE and above; appenders filter from there. -->
+    <logger name="com.coyotebitcoin.tatooine" level="TRACE" additivity="true">
         <appender-ref ref="FILE_INFO_UP"/>
         <appender-ref ref="FILE_ALL"/>
     </logger>

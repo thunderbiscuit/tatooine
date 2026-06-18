@@ -14,7 +14,9 @@ import io.ktor.server.auth.bearer
 import io.ktor.server.netty.EngineMain
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import org.bitcoindevkit.Network
-import org.slf4j.LoggerFactory
+import io.github.oshai.kotlinlogging.KotlinLogging
+
+private val logger = KotlinLogging.logger {}
 
 fun main(args: Array<String>) {
     EngineMain.main(args)
@@ -26,7 +28,6 @@ fun Application.module() {
     val network: Network = environment.config.property("wallet.network").getString().toNetwork()
     val electrumUrl = environment.config.property("wallet.electrumUrl").getString()
     val amount = environment.config.property("wallet.amount").getString().toULong()
-    val logger = LoggerFactory.getLogger("FAUCET_LOGS")
 
     // Initialize wallet
     val dbFilePath = run {
@@ -47,9 +48,9 @@ fun Application.module() {
                 if (tokenCredential.token == bearerToken) {
                     UserIdPrincipal("User")
                 } else {
-                    logger.warn(
+                    logger.warn {
                         "bad authenticated request made with token '${tokenCredential.token}'"
-                    )
+                    }
                     null
                 }
             }

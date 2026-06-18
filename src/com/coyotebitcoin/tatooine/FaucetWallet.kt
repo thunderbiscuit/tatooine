@@ -23,7 +23,7 @@ import org.bitcoindevkit.Persister
 import org.bitcoindevkit.Psbt
 import org.bitcoindevkit.TxBuilder
 import org.bitcoindevkit.Wallet as BdkWallet
-import org.slf4j.LoggerFactory
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 @Serializable data class MonthlyStats(val month: String, val count: Int)
 
@@ -46,7 +46,7 @@ class FaucetWallet(
     dbFilePath: String,
 ) {
     private val wallet: BdkWallet
-    private val logger = LoggerFactory.getLogger("FAUCET_LOGS")
+    private val logger = KotlinLogging.logger {}
     private val electrumClient: ElectrumClient = ElectrumClient(electrumUrl)
     private val transactionTimestamps: CopyOnWriteArrayList<Instant> = CopyOnWriteArrayList()
     private val db: Persister = Persister.newSqlite(dbFilePath)
@@ -59,13 +59,13 @@ class FaucetWallet(
                 network = network,
                 persister = db,
             )
-        logger.info("Wallet initialized")
-        logger.info("Connecting to Electrum server at $electrumUrl")
+        logger.info { "Wallet initialized" }
+        logger.info { "Connecting to Electrum server at $electrumUrl" }
         fullScan()
     }
 
     private fun fullScan() {
-        logger.info("First full scan of wallet")
+        logger.info { "First full scan of wallet" }
         val fullScanRequest = wallet.startFullScan().build()
         val update =
             electrumClient.fullScan(
@@ -79,7 +79,7 @@ class FaucetWallet(
     }
 
     fun sync() {
-        logger.info("Syncing wallet")
+        logger.info { "Syncing wallet" }
         val syncRequest = wallet.startSyncWithRevealedSpks().build()
         val start = System.currentTimeMillis()
         val update =
@@ -92,7 +92,7 @@ class FaucetWallet(
         wallet.applyUpdate(update)
         wallet.persist(db)
         val balance = wallet.balance().total.toSat()
-        logger.info("Sync completed in ${elapsed}s. Balance: $balance sats")
+        logger.info { "Sync completed in ${elapsed}s. Balance: $balance sats" }
     }
 
     fun getBalance(): ULong {
@@ -126,12 +126,12 @@ class FaucetWallet(
                 last30Days = last30Days,
                 months = months,
             )
-        logger.info("Report: $report")
+        logger.info { "Report: $report" }
         return report
     }
 
     fun sendTo(address: String) {
-        logger.info("Attempting to send coins to address '$address'")
+        logger.info { "Attempting to send coins to address '$address'" }
 
         val psbt: Psbt =
             try {
@@ -146,25 +146,25 @@ class FaucetWallet(
                 psbt
             } catch (e: Exception) {
                 // Log at ERROR level for simple logs
-                logger.error(
+                logger.error {
                     "Failed to build transaction for address '$address': ${e.javaClass}: ${e.message}"
-                )
+                }
                 // Log with stack trace at DEBUG level for detailed debugging log file
-                logger.debug("Failed to build transaction for $address", e)
+                logger.debug(e) { "Failed to build transaction for $address" }
                 throw e
             }
 
         try {
             electrumClient.transactionBroadcast(psbt.extractTx())
             transactionTimestamps.add(Instant.now())
-            logger.info("Faucet sent coins to address '$address'")
+            logger.info { "Faucet sent coins to address '$address'" }
         } catch (e: Exception) {
             // Log at ERROR level for simple logs
-            logger.error(
+            logger.error {
                 "Failed to broadcast transaction for `$address`: ${e.javaClass}: ${e.message}"
-            )
+            }
             // Log with stack trace at DEBUG level for detailed debugging log file
-            logger.debug("Failed to broadcast transaction for $address", e)
+            logger.debug(e) { "Failed to broadcast transaction for $address" }
             throw e
         }
     }

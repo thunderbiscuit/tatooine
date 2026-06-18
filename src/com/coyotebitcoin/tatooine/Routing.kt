@@ -19,15 +19,16 @@ import io.ktor.server.routing.routing
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
-import org.slf4j.LoggerFactory
+import io.github.oshai.kotlinlogging.KotlinLogging
+
+private val logger = KotlinLogging.logger {}
 
 fun Application.configureRouting(wallet: FaucetWallet) {
-    val logger = LoggerFactory.getLogger("FAUCET_LOGS")
 
     routing {
         authenticate {
             get("/") {
-                logger.info("'/' (root) route accessed")
+                logger.info { "'/' (root) route accessed" }
                 call.respondText(
                     text = "Do. Or do not. There is no try.\n",
                     contentType = ContentType.Text.Plain,
@@ -36,7 +37,7 @@ fun Application.configureRouting(wallet: FaucetWallet) {
             }
 
             get("/getbalance") {
-                logger.debug("'getbalance' route accessed")
+                logger.debug { "'getbalance' route accessed" }
                 val balance: String = wallet.getBalance().toString()
 
                 call.respondText(
@@ -47,7 +48,7 @@ fun Application.configureRouting(wallet: FaucetWallet) {
             }
 
             post("/sendcoins") {
-                logger.debug("'sendcoins' route accessed")
+                logger.debug { "'sendcoins' route accessed" }
                 val address: String = async { call.receive<String>() }.await()
                 try {
                     withContext(Dispatchers.IO) { wallet.sendTo(address) }
@@ -68,14 +69,14 @@ fun Application.configureRouting(wallet: FaucetWallet) {
             }
 
             get("/report") {
-                logger.debug("'report' route accessed")
+                logger.debug { "'report' route accessed" }
                 withContext(Dispatchers.IO) { wallet.sync() }
                 call.respond<FaucetReport>(wallet.getReport())
             }
 
             val shutdown = ShutDownUrl(url = "", exitCode = { 0 })
             get("/shutdown") {
-                logger.info("'shutdown' route accessed: shutting down server")
+                logger.info { "'shutdown' route accessed: shutting down server" }
                 shutdown.doShutdown(call)
             }
         }
