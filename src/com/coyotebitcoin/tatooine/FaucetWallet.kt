@@ -31,13 +31,14 @@ import org.bitcoindevkit.Wallet as BdkWallet
 
 @Serializable
 data class FaucetReport(
+    val versionName: String,
     val balanceSats: ULong,
     val last7Days: Int,
     val last30Days: Int,
     val months: List<MonthlyStats>,
 ) {
     override fun toString(): String =
-        "balance=$balanceSats sats, last7Days=$last7Days, last30Days=$last30Days, months=$months"
+        "version=$versionName, balance=$balanceSats sats, last7Days=$last7Days, last30Days=$last30Days, months=$months"
 }
 
 class FaucetWallet(
@@ -45,6 +46,7 @@ class FaucetWallet(
     private val network: Network,
     electrumUrl: String,
     private val faucetAmount: ULong,
+    private val versionName: String,
     dbFilePath: String,
 ) {
     private val wallet: BdkWallet
@@ -124,6 +126,7 @@ class FaucetWallet(
 
         val report =
             FaucetReport(
+                versionName = versionName,
                 balanceSats = getBalance(),
                 last7Days = last7Days,
                 last30Days = last30Days,

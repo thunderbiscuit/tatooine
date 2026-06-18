@@ -30,6 +30,7 @@ fun Application.module() {
     logger.info {
         "Server starting on ${config.ktor.deployment.host}:${config.ktor.deployment.port}"
     }
+    logger.info { "Faucet version: ${faucetConfig.versionName}" }
 
     val dbFilePath = run {
         val currentDirectory = System.getProperty("user.dir")
@@ -41,6 +42,7 @@ fun Application.module() {
             network = walletConfig.network.toNetwork(),
             electrumUrl = walletConfig.electrumUrl,
             faucetAmount = faucetConfig.amount,
+            versionName = faucetConfig.versionName,
             dbFilePath = dbFilePath,
         )
 

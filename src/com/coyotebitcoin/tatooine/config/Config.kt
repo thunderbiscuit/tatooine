@@ -26,6 +26,7 @@ data class DeploymentConfig(
 data class FaucetConfig(
     val bearerToken: String,
     val amount: ULong,
+    val versionName: String,
 )
 
 @Serializable
