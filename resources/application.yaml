@@ -9,7 +9,7 @@ ktor:
 faucet:
   bearerToken: "token"
   amount: 5000
-  versionName: "2.0.0 Tatooine Regtest"
+  versionName: "2.1.0 Tatooine Regtest"
 
 # This config defaults to a local Regtest setup
 wallet:
