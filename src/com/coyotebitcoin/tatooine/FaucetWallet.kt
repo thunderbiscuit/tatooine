@@ -22,6 +22,8 @@ import org.bitcoindevkit.Network
 import org.bitcoindevkit.NetworkKind
 import org.bitcoindevkit.Persister
 import org.bitcoindevkit.Psbt
+import org.bitcoindevkit.Script
+import org.bitcoindevkit.SyncScriptInspector
 import org.bitcoindevkit.TxBuilder
 import org.bitcoindevkit.Wallet as BdkWallet
 
@@ -81,7 +83,7 @@ class FaucetWallet(
 
     fun sync() {
         logger.info { "Syncing wallet" }
-        val syncRequest = wallet.startSyncWithRevealedSpks().build()
+        val syncRequest = wallet.startSyncWithRevealedSpks().inspectSpks(SyncCallback()).build()
         val start = System.currentTimeMillis()
         val update =
             electrumClient.sync(
@@ -158,6 +160,17 @@ class FaucetWallet(
             logger.error(e) { "Failed to broadcast transaction for address '$address'" }
             throw e
         }
+    }
+}
+
+class SyncCallback : SyncScriptInspector {
+    private val logger = KotlinLogging.logger {}
+    var totalSynced = 0
+
+    // On the first run of the callback, log the number of scripts that will be inspected.
+    override fun inspect(script: Script, total: ULong) {
+        if (totalSynced == 0) logger.info { "Syncing $total scripts in this sync" }
+        totalSynced++
     }
 }
 
