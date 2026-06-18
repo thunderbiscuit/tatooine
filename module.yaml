@@ -19,7 +19,7 @@ settings:
   publishing:
     name: tatooine
     group: com.coyotebitcoin
-    version: 1.2.0
+    version: 2.0.0
   kotlin:
     version: 2.4.0
     serialization:
