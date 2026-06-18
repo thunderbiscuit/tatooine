@@ -5,6 +5,7 @@
 
 package com.coyotebitcoin.tatooine
 
+import com.coyotebitcoin.tatooine.config.TatooineConfig
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
@@ -15,7 +16,6 @@ import io.ktor.server.auth.bearer
 import io.ktor.server.config.getAs
 import io.ktor.server.netty.EngineMain
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
-import com.coyotebitcoin.tatooine.config.TatooineConfig
 
 private val logger = KotlinLogging.logger {}
 
@@ -27,19 +27,22 @@ fun Application.module() {
     val config = environment.config.getAs<TatooineConfig>()
     val faucetConfig = config.faucet
     val walletConfig = config.wallet
-    logger.info { "Server starting on ${config.ktor.deployment.host}:${config.ktor.deployment.port}" }
+    logger.info {
+        "Server starting on ${config.ktor.deployment.host}:${config.ktor.deployment.port}"
+    }
 
     val dbFilePath = run {
         val currentDirectory = System.getProperty("user.dir")
         "$currentDirectory/bdk_persistence.sqlite3"
     }
-    val faucetWallet = FaucetWallet(
-        descriptorString = walletConfig.descriptor,
-        network = walletConfig.network.toNetwork(),
-        electrumUrl = walletConfig.electrumUrl,
-        faucetAmount = faucetConfig.amount,
-        dbFilePath = dbFilePath,
-    )
+    val faucetWallet =
+        FaucetWallet(
+            descriptorString = walletConfig.descriptor,
+            network = walletConfig.network.toNetwork(),
+            electrumUrl = walletConfig.electrumUrl,
+            faucetAmount = faucetConfig.amount,
+            dbFilePath = dbFilePath,
+        )
 
     install(ContentNegotiation) {
         json()

@@ -14,10 +14,7 @@ data class TatooineConfig(
     val wallet: WalletConfig,
 )
 
-@Serializable
-data class KtorConfig(
-    val deployment: DeploymentConfig,
-)
+@Serializable data class KtorConfig(val deployment: DeploymentConfig)
 
 @Serializable
 data class DeploymentConfig(

@@ -5,6 +5,7 @@
 
 package com.coyotebitcoin.tatooine
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
@@ -19,7 +20,6 @@ import io.ktor.server.routing.routing
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
-import io.github.oshai.kotlinlogging.KotlinLogging
 
 private val logger = KotlinLogging.logger {}
 
@@ -28,7 +28,7 @@ fun Application.configureRouting(wallet: FaucetWallet) {
     routing {
         authenticate {
             get("/") {
-                logger.info { "'/' (root) route accessed" }
+                logger.info { "GET - /" }
                 call.respondText(
                     text = "Do. Or do not. There is no try.\n",
                     contentType = ContentType.Text.Plain,
@@ -37,7 +37,7 @@ fun Application.configureRouting(wallet: FaucetWallet) {
             }
 
             get("/getbalance") {
-                logger.info { "'getbalance' route accessed" }
+                logger.info { "GET - /getbalance" }
                 val balance: String = wallet.getBalance().toString()
 
                 call.respondText(
@@ -48,7 +48,7 @@ fun Application.configureRouting(wallet: FaucetWallet) {
             }
 
             post("/sendcoins") {
-                logger.info { "'sendcoins' route accessed" }
+                logger.info { "POST - /sendcoins" }
                 val address: String = async { call.receive<String>() }.await()
                 try {
                     withContext(Dispatchers.IO) { wallet.sendTo(address) }
@@ -69,14 +69,14 @@ fun Application.configureRouting(wallet: FaucetWallet) {
             }
 
             get("/report") {
-                logger.info { "'report' route accessed" }
+                logger.info { "GET - /report" }
                 withContext(Dispatchers.IO) { wallet.sync() }
                 call.respond<FaucetReport>(wallet.getReport())
             }
 
             val shutdown = ShutDownUrl(url = "", exitCode = { 0 })
             get("/shutdown") {
-                logger.info { "'shutdown' route accessed: shutting down server" }
+                logger.info { "GET - /shutdown" }
                 shutdown.doShutdown(call)
             }
         }

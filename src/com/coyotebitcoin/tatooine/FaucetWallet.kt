@@ -5,6 +5,7 @@
 
 package com.coyotebitcoin.tatooine
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.time.Instant
 import java.time.LocalDate
 import java.time.YearMonth
@@ -23,7 +24,6 @@ import org.bitcoindevkit.Persister
 import org.bitcoindevkit.Psbt
 import org.bitcoindevkit.TxBuilder
 import org.bitcoindevkit.Wallet as BdkWallet
-import io.github.oshai.kotlinlogging.KotlinLogging
 
 @Serializable data class MonthlyStats(val month: String, val count: Int)
 
