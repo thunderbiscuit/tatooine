@@ -37,7 +37,7 @@ fun Application.configureRouting(wallet: FaucetWallet) {
             }
 
             get("/getbalance") {
-                logger.debug { "'getbalance' route accessed" }
+                logger.info { "'getbalance' route accessed" }
                 val balance: String = wallet.getBalance().toString()
 
                 call.respondText(
@@ -48,7 +48,7 @@ fun Application.configureRouting(wallet: FaucetWallet) {
             }
 
             post("/sendcoins") {
-                logger.debug { "'sendcoins' route accessed" }
+                logger.info { "'sendcoins' route accessed" }
                 val address: String = async { call.receive<String>() }.await()
                 try {
                     withContext(Dispatchers.IO) { wallet.sendTo(address) }
@@ -69,7 +69,7 @@ fun Application.configureRouting(wallet: FaucetWallet) {
             }
 
             get("/report") {
-                logger.debug { "'report' route accessed" }
+                logger.info { "'report' route accessed" }
                 withContext(Dispatchers.IO) { wallet.sync() }
                 call.respond<FaucetReport>(wallet.getReport())
             }

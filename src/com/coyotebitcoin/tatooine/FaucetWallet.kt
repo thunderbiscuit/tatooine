@@ -61,6 +61,7 @@ class FaucetWallet(
             )
         logger.info { "Wallet initialized" }
         logger.info { "Connecting to Electrum server at $electrumUrl" }
+        logger.info { "Faucet amount: $faucetAmount sats per request" }
         fullScan()
     }
 
@@ -145,12 +146,7 @@ class FaucetWallet(
                 wallet.sign(psbt)
                 psbt
             } catch (e: Exception) {
-                // Log at ERROR level for simple logs
-                logger.error {
-                    "Failed to build transaction for address '$address': ${e.javaClass}: ${e.message}"
-                }
-                // Log with stack trace at DEBUG level for detailed debugging log file
-                logger.debug(e) { "Failed to build transaction for $address" }
+                logger.error(e) { "Failed to build transaction for address '$address'" }
                 throw e
             }
 
@@ -159,12 +155,7 @@ class FaucetWallet(
             transactionTimestamps.add(Instant.now())
             logger.info { "Faucet sent coins to address '$address'" }
         } catch (e: Exception) {
-            // Log at ERROR level for simple logs
-            logger.error {
-                "Failed to broadcast transaction for `$address`: ${e.javaClass}: ${e.message}"
-            }
-            // Log with stack trace at DEBUG level for detailed debugging log file
-            logger.debug(e) { "Failed to broadcast transaction for $address" }
+            logger.error(e) { "Failed to broadcast transaction for address '$address'" }
             throw e
         }
     }

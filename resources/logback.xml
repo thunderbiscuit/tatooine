@@ -1,34 +1,20 @@
 <configuration>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{YYYY-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
-    <timestamp key="timestamp" datePattern="yyyy-MM-dd-HH:mm" />
 
     <!-- Appender for logs info and up  -->
     <appender name="FILE_INFO_UP" class="ch.qos.logback.core.FileAppender">
         <file>
-            ${HOME}/logs/tatooinelogs-${timestamp}.log
+            ${HOME}/logs/tatooinefaucet.log
         </file>
         <encoder>
-            <pattern>%date{YYYY-MM-dd HH:mm:ss} %-5level - %message%n</pattern>
+            <pattern>%date{yyyy-MM-dd HH:mm:ss} %-5level - %message%n</pattern>
         </encoder>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>INFO</level>
-        </filter>
-    </appender>
-
-    <!-- Appender for logs with trace level  -->
-    <appender name="FILE_ALL" class="ch.qos.logback.core.FileAppender">
-        <file>
-            ${HOME}/logs/trace-logs-${timestamp}.log
-        </file>
-        <encoder>
-            <pattern>%date{YYYY-MM-dd HH:mm:ss} %-5level - %message%n</pattern>
-        </encoder>
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>TRACE</level>
         </filter>
     </appender>
 
@@ -37,10 +23,8 @@
     </root>
 
     <!-- Captures all loggers under the tatooine package (KotlinLogging.logger {} names by class). -->
-    <!-- Lets through everything at TRACE and above; appenders filter from there. -->
-    <logger name="com.coyotebitcoin.tatooine" level="TRACE" additivity="true">
+    <logger name="com.coyotebitcoin.tatooine" level="INFO" additivity="true">
         <appender-ref ref="FILE_INFO_UP"/>
-        <appender-ref ref="FILE_ALL"/>
     </logger>
     <logger name="io.netty" level="INFO"/>
 </configuration>
