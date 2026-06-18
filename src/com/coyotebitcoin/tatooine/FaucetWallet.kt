@@ -33,7 +33,10 @@ data class FaucetReport(
     val last7Days: Int,
     val last30Days: Int,
     val months: List<MonthlyStats>,
-)
+) {
+    override fun toString(): String =
+        "balance=$balanceSats sats, last7Days=$last7Days, last30Days=$last30Days, months=$months"
+}
 
 class FaucetWallet(
     descriptorString: String,
@@ -78,16 +81,18 @@ class FaucetWallet(
     fun sync() {
         logger.info("Syncing wallet")
         val syncRequest = wallet.startSyncWithRevealedSpks().build()
+        val start = System.currentTimeMillis()
         val update =
             electrumClient.sync(
                 request = syncRequest,
                 batchSize = 10uL,
                 fetchPrevTxouts = true,
             )
+        val elapsed = (System.currentTimeMillis() - start) / 1000.0
         wallet.applyUpdate(update)
         wallet.persist(db)
         val balance = wallet.balance().total.toSat()
-        logger.info("Wallet synced. Balance: $balance")
+        logger.info("Sync completed in ${elapsed}s. Balance: $balance sats")
     }
 
     fun getBalance(): ULong {
@@ -114,12 +119,15 @@ class FaucetWallet(
                 )
             }
 
-        return FaucetReport(
-            balanceSats = getBalance(),
-            last7Days = last7Days,
-            last30Days = last30Days,
-            months = months,
-        )
+        val report =
+            FaucetReport(
+                balanceSats = getBalance(),
+                last7Days = last7Days,
+                last30Days = last30Days,
+                months = months,
+            )
+        logger.info("Report: $report")
+        return report
     }
 
     fun sendTo(address: String) {
