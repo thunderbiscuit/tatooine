@@ -6,6 +6,7 @@
 package com.coyotebitcoin.tatooine.config
 
 import kotlinx.serialization.Serializable
+import org.bitcoindevkit.Network
 
 @Serializable
 data class TatooineConfig(
@@ -34,4 +35,26 @@ data class WalletConfig(
     val descriptor: String,
     val network: String,
     val electrumUrl: String,
+    val syncType: String,
 )
+
+enum class SyncType {
+    CBF,
+    ELECTRUM,
+}
+
+fun String.toSyncType(): SyncType =
+    when (this) {
+        "CBF" -> SyncType.CBF
+        "Electrum" -> SyncType.ELECTRUM
+        else -> throw IllegalArgumentException("Unsupported sync type: $this")
+    }
+
+fun String.toNetwork(): Network =
+    when (this) {
+        "REGTEST" -> Network.REGTEST
+        "SIGNET" -> Network.SIGNET
+        "TESTNET" -> Network.TESTNET
+        "TESTNET4" -> Network.TESTNET4
+        else -> throw IllegalArgumentException("Unsupported network: $this")
+    }

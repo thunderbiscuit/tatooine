@@ -5,6 +5,7 @@
 
 package com.coyotebitcoin.tatooine
 
+import com.coyotebitcoin.tatooine.config.SyncType
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.time.Instant
 import java.time.LocalDate
@@ -45,6 +46,7 @@ class FaucetWallet(
     descriptorString: String,
     private val network: Network,
     electrumUrl: String,
+    syncType: SyncType,
     private val faucetAmount: ULong,
     private val versionName: String,
     dbFilePath: String,

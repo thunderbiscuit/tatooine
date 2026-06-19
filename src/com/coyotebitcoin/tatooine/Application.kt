@@ -6,6 +6,8 @@
 package com.coyotebitcoin.tatooine
 
 import com.coyotebitcoin.tatooine.config.TatooineConfig
+import com.coyotebitcoin.tatooine.config.toNetwork
+import com.coyotebitcoin.tatooine.config.toSyncType
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
@@ -31,6 +33,7 @@ fun Application.module() {
         "Server starting on ${config.ktor.deployment.host}:${config.ktor.deployment.port}"
     }
     logger.info { "Faucet version: ${faucetConfig.versionName}" }
+    logger.info { "Faucet wallet syncs with ${walletConfig.syncType} client" }
 
     val dbFilePath = run {
         val currentDirectory = System.getProperty("user.dir")
@@ -41,6 +44,7 @@ fun Application.module() {
             descriptorString = walletConfig.descriptor,
             network = walletConfig.network.toNetwork(),
             electrumUrl = walletConfig.electrumUrl,
+            syncType = walletConfig.syncType.toSyncType(),
             faucetAmount = faucetConfig.amount,
             versionName = faucetConfig.versionName,
             dbFilePath = dbFilePath,
