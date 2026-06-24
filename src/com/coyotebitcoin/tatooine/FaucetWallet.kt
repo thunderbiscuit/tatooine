@@ -6,6 +6,7 @@
 package com.coyotebitcoin.tatooine
 
 import com.coyotebitcoin.tatooine.config.SyncType
+import com.coyotebitcoin.tatooine.sync.Kyoto
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.time.Instant
 import java.time.LocalDate
@@ -13,19 +14,25 @@ import java.time.YearMonth
 import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.CopyOnWriteArrayList
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import org.bitcoindevkit.Address
 import org.bitcoindevkit.Amount
 import org.bitcoindevkit.Descriptor
 import org.bitcoindevkit.ElectrumClient
 import org.bitcoindevkit.FeeRate
+import org.bitcoindevkit.KeychainKind
 import org.bitcoindevkit.Network
 import org.bitcoindevkit.NetworkKind
 import org.bitcoindevkit.Persister
 import org.bitcoindevkit.Psbt
 import org.bitcoindevkit.Script
 import org.bitcoindevkit.SyncScriptInspector
+import org.bitcoindevkit.Transaction
 import org.bitcoindevkit.TxBuilder
+import org.bitcoindevkit.UnconfirmedTx
 import org.bitcoindevkit.Wallet as BdkWallet
 
 @Serializable data class MonthlyStats(val month: String, val count: Int)
@@ -46,17 +53,19 @@ class FaucetWallet(
     descriptorString: String,
     private val network: Network,
     electrumUrl: String,
-    syncType: SyncType,
+    val syncType: SyncType,
     private val faucetAmount: ULong,
     private val versionName: String,
     dbFilePath: String,
 ) {
     private val wallet: BdkWallet
     private val logger = KotlinLogging.logger {}
-    private val electrumClient: ElectrumClient = ElectrumClient(electrumUrl)
+    private var electrumClient: ElectrumClient? = null
+    private var kyoto: Kyoto? = null
     private val transactionTimestamps: CopyOnWriteArrayList<Instant> = CopyOnWriteArrayList()
     private val db: Persister = Persister.newSqlite(dbFilePath)
     private val descriptor: Descriptor = Descriptor(descriptorString, NetworkKind.TEST)
+    private val kyotoCoroutineScope: CoroutineScope = CoroutineScope(Dispatchers.IO)
 
     init {
         wallet =
@@ -64,42 +73,40 @@ class FaucetWallet(
                 descriptor = descriptor,
                 network = network,
                 persister = db,
+                lookahead = 1000u,
             )
-        logger.info { "Wallet initialized" }
-        logger.info { "Connecting to Electrum server at $electrumUrl" }
-        logger.info { "Faucet amount: $faucetAmount sats per request" }
-        fullScan()
-    }
+        val fundingAddress = wallet.peekAddress(KeychainKind.EXTERNAL, 0u)
+        logger.info {
+            "Funding address: ${fundingAddress.address} at index ${fundingAddress.index}"
+        }
 
-    private fun fullScan() {
-        logger.info { "First full scan of wallet" }
-        val fullScanRequest = wallet.startFullScan().build()
-        val update =
-            electrumClient.fullScan(
-                request = fullScanRequest,
-                stopGap = 100uL,
-                batchSize = 10uL,
-                fetchPrevTxouts = true,
-            )
-        wallet.applyUpdate(update)
-        wallet.persist(db)
+        if (syncType == SyncType.CBF) {
+            val dataDir = run {
+                val currentDirectory = System.getProperty("user.dir")
+                "$currentDirectory/cbfdata"
+            }
+            logger.info { "Storing CBF data at $dataDir" }
+            this.kyoto = Kyoto.create(wallet, dataDir, network)
+        }
+        logger.info { "Wallet initialized" }
+
+        if (syncType == SyncType.CBF) {
+            logger.info { "Starting Compact Block Filter Node" }
+            kyotoStart()
+        } else {
+            logger.info { "Connecting to Electrum server at $electrumUrl" }
+            this.electrumClient = ElectrumClient(electrumUrl)
+            electrumFullScan()
+        }
+
+        logger.info { "Faucet amount: $faucetAmount sats per request" }
     }
 
     fun sync() {
-        logger.info { "Syncing wallet" }
-        val syncRequest = wallet.startSyncWithRevealedSpks().inspectSpks(SyncCallback()).build()
-        val start = System.currentTimeMillis()
-        val update =
-            electrumClient.sync(
-                request = syncRequest,
-                batchSize = 10uL,
-                fetchPrevTxouts = true,
-            )
-        val elapsed = (System.currentTimeMillis() - start) / 1000.0
-        wallet.applyUpdate(update)
-        wallet.persist(db)
-        val balance = wallet.balance().total.toSat()
-        logger.info { "Sync completed in ${elapsed}s. Balance: $balance sats" }
+        // Compact Block Filter client doesn't need to sync this way
+        if (this.syncType == SyncType.ELECTRUM) {
+            electrumSync()
+        }
     }
 
     fun getBalance(): ULong {
@@ -158,12 +165,78 @@ class FaucetWallet(
             }
 
         try {
-            electrumClient.transactionBroadcast(psbt.extractTx())
+            val transaction = psbt.extractTx()
+            val timestamp: ULong = Instant.now().epochSecond.toULong()
+            val unconfirmedTx = UnconfirmedTx(tx = transaction, lastSeen = timestamp)
+
+            if (syncType == SyncType.ELECTRUM) {
+                electrumBroadcast(transaction)
+            } else if (syncType == SyncType.CBF) {
+                kyotoBroadcast(transaction, unconfirmedTx)
+            }
+
             transactionTimestamps.add(Instant.now())
-            logger.info { "Faucet sent coins to address '$address'" }
         } catch (e: Exception) {
             logger.error(e) { "Failed to broadcast transaction for address '$address'" }
             throw e
+        }
+    }
+
+    private fun kyotoStart() {
+        logger.info { "Starting Kyoto" }
+        kyoto!!.writeLogs()
+        val updatesFlow = kyoto!!.start()
+        kyotoCoroutineScope.launch {
+            updatesFlow.collect {
+                wallet.applyUpdate(it)
+                wallet.persist(db)
+            }
+        }
+    }
+
+    private fun electrumFullScan() {
+        logger.info { "Performing Electrum initial full scan" }
+        val fullScanRequest = wallet.startFullScan().build()
+        val update =
+            electrumClient?.fullScan(
+                request = fullScanRequest,
+                stopGap = 100uL,
+                batchSize = 10uL,
+                fetchPrevTxouts = true,
+            ) ?: throw IllegalStateException()
+        wallet.applyUpdate(update)
+        wallet.persist(db)
+    }
+
+    private fun electrumSync() {
+        val syncRequest = wallet.startSyncWithRevealedSpks().inspectSpks(SyncCallback()).build()
+        val start = System.currentTimeMillis()
+        val update =
+            electrumClient?.sync(
+                request = syncRequest,
+                batchSize = 10uL,
+                fetchPrevTxouts = true,
+            ) ?: throw IllegalStateException()
+        val elapsed = (System.currentTimeMillis() - start) / 1000.0
+        wallet.applyUpdate(update)
+        wallet.persist(db)
+        val balance = wallet.balance().total.toSat()
+        logger.info { "Sync completed in ${elapsed}s. Balance: $balance sats" }
+    }
+
+    private fun electrumBroadcast(transaction: Transaction) {
+        // Clean up this exception
+        electrumClient?.transactionBroadcast(transaction) ?: throw IllegalStateException()
+        logger.info { "Broadcast tx ${transaction.computeTxid()} using Electrum" }
+    }
+
+    private fun kyotoBroadcast(transaction: Transaction, unconfirmedTx: UnconfirmedTx) {
+        logger.info { "Broadcast tx ${transaction.computeTxid()} using Kyoto" }
+        kyotoCoroutineScope.launch { kyoto!!.broadcast(transaction) }
+        wallet.applyUnconfirmedTxs(listOf(unconfirmedTx))
+        // Remove this log after testing
+        logger.info {
+            "Kyoto applied unconfirmed transaction ${transaction.computeTxid()} to wallet"
         }
     }
 }
@@ -178,12 +251,3 @@ class SyncCallback : SyncScriptInspector {
         totalSynced++
     }
 }
-
-fun String.toNetwork(): Network =
-    when (this) {
-        "REGTEST" -> Network.REGTEST
-        "SIGNET" -> Network.SIGNET
-        "TESTNET" -> Network.TESTNET
-        "TESTNET4" -> Network.TESTNET4
-        else -> throw IllegalArgumentException("Unsupported network: $this")
-    }

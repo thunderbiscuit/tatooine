@@ -13,3 +13,7 @@
 /.settings/
 .DS_Store
 *.sqlite3
+.local/
+app.log
+error.log
+tatooine-jvm-executable.jar

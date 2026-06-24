@@ -1,5 +1,8 @@
-default:
-  just --list
+@list:
+  just --list --unsorted
+
+clean:
+  ./kotlin clean
 
 build:
   ./kotlin build
