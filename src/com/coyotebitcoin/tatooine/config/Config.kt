@@ -46,7 +46,7 @@ enum class SyncType {
 fun String.toSyncType(): SyncType =
     when (this) {
         "CBF" -> SyncType.CBF
-        "Electrum" -> SyncType.ELECTRUM
+        "ELECTRUM" -> SyncType.ELECTRUM
         else -> throw IllegalArgumentException("Unsupported sync type: $this")
     }
 
