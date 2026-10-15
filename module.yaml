@@ -14,7 +14,7 @@ dependencies:
   - io.github.oshai:kotlin-logging-jvm:8.0.4
 
   # Bitcoin
-  - org.bitcoindevkit:bdk-jvm:3.0.0
+  - org.bitcoindevkit:bdk-jvm:3.1.1
 
 settings:
   publishing:
