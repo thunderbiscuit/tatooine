@@ -76,7 +76,7 @@ class FaucetWallet(
                 persister = db,
                 lookahead = 1000u,
             )
-        val fundingAddress = wallet.peekAddress(KeychainKind.EXTERNAL, 0u)
+        val fundingAddress = wallet.revealAddressesTo(KeychainKind.EXTERNAL, 0u).first()
         logger.info {
             "Funding address: ${fundingAddress.address} at index ${fundingAddress.index}"
         }
