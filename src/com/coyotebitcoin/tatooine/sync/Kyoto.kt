@@ -111,16 +111,10 @@ private constructor(
                         listOf()
                     }
                 }
-            val scanType =
-                ScanType.Recovery(usedScriptIndex = 100u, checkpoint = RecoveryPoint.GenesisBlock)
+            val scanType = ScanType.Recovery(usedScriptIndex = 100u, checkpoint = RecoveryPoint.GenesisBlock)
 
             val (client, node) =
-                CbfBuilder()
-                    .dataDir(dataDir)
-                    .peers(peers)
-                    .connections(1u)
-                    .scanType(scanType)
-                    .build(wallet)
+                CbfBuilder().dataDir(dataDir).peers(peers).connections(1u).scanType(scanType).build(wallet)
 
             return Kyoto(node, client).also { instance = it }
         }
