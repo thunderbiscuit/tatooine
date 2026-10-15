@@ -40,7 +40,26 @@ You achieve this by adding a `-config` argument to the call when launching the s
 java -jar tatooine-jvm-executable.jar -config=production.yaml
 ```
 
+## Data directory
+
+The faucet keeps all of its state in a single data directory, independent of where it is launched from. This directory is `~/.tatooine/`.
+
+```
+~/.tatooine/
+├── bdk_persistence.sqlite3   # wallet database
+├── cbfdata/                  # compact block filter data (CBF sync only)
+└── logs/
+    └── tatooinefaucet.log
+```
+
 ## Usage
+
+To run the faucet in the background on a server and capture console output and crashes alongside the application log, use:
+
+```shell
+mkdir ~/.tatooine/logs
+nohup java -jar tatooine-jvm-executable.jar -config=production.yaml 1>~/.tatooine/logs/app.log 2>~/.tatooine/logs/error.log &
+```
 
 Most of the routes for the server require authentication, and the `/sendcoins` route requires a POST request. Here are examples for all 5 routes:
 

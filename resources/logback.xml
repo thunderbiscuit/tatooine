@@ -8,7 +8,7 @@
     <!-- Appender for logs info and up  -->
     <appender name="FILE_INFO_UP" class="ch.qos.logback.core.FileAppender">
         <file>
-            ${HOME}/logs/tatooinefaucet.log
+            ${HOME}/.tatooine/logs/tatooinefaucet.log
         </file>
         <encoder>
             <pattern>%date{yyyy-MM-dd HH:mm:ss} %-5level - %message%n</pattern>

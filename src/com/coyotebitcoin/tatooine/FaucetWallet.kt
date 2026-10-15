@@ -8,6 +8,7 @@ package com.coyotebitcoin.tatooine
 import com.coyotebitcoin.tatooine.config.SyncType
 import com.coyotebitcoin.tatooine.sync.Kyoto
 import io.github.oshai.kotlinlogging.KotlinLogging
+import java.nio.file.Path
 import java.time.Instant
 import java.time.LocalDate
 import java.time.YearMonth
@@ -56,14 +57,14 @@ class FaucetWallet(
     val syncType: SyncType,
     private val faucetAmount: ULong,
     private val versionName: String,
-    dbFilePath: String,
+    dataDir: Path,
 ) {
     private val wallet: BdkWallet
     private val logger = KotlinLogging.logger {}
     private var electrumClient: ElectrumClient? = null
     private var kyoto: Kyoto? = null
     private val transactionTimestamps: CopyOnWriteArrayList<Instant> = CopyOnWriteArrayList()
-    private val db: Persister = Persister.newSqlite(dbFilePath)
+    private val db: Persister = Persister.newSqlite(dataDir.resolve("bdk_persistence.sqlite3").toString())
     private val descriptor: Descriptor = Descriptor(descriptorString, NetworkKind.TEST)
     private val kyotoCoroutineScope: CoroutineScope = CoroutineScope(Dispatchers.IO)
 
@@ -81,12 +82,9 @@ class FaucetWallet(
         }
 
         if (syncType == SyncType.CBF) {
-            val dataDir = run {
-                val currentDirectory = System.getProperty("user.dir")
-                "$currentDirectory/cbfdata"
-            }
-            logger.info { "Storing CBF data at $dataDir" }
-            this.kyoto = Kyoto.create(wallet, dataDir, network)
+            val cbfDataDir = dataDir.resolve("cbfdata").toString()
+            logger.info { "Storing CBF data at $cbfDataDir" }
+            this.kyoto = Kyoto.create(wallet, cbfDataDir, network)
         }
         logger.info { "Wallet initialized" }
 

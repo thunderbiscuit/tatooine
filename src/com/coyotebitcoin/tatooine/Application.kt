@@ -18,6 +18,8 @@ import io.ktor.server.auth.bearer
 import io.ktor.server.config.getAs
 import io.ktor.server.netty.EngineMain
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import java.nio.file.Files
+import java.nio.file.Path
 
 private val logger = KotlinLogging.logger {}
 
@@ -35,10 +37,12 @@ fun Application.module() {
     logger.info { "Faucet version: ${faucetConfig.versionName}" }
     logger.info { "Faucet wallet syncs with ${walletConfig.syncType} client" }
 
-    val dbFilePath = run {
-        val currentDirectory = System.getProperty("user.dir")
-        "$currentDirectory/bdk_persistence.sqlite3"
-    }
+    // All persistent state lives in one place regardless of where the jar is launched from.
+    // Keep in sync with the log file location in logback.xml.
+    val dataDir: Path = Path.of(System.getProperty("user.home"), ".tatooine")
+    Files.createDirectories(dataDir)
+    logger.info { "Data directory: $dataDir" }
+
     val faucetWallet =
         FaucetWallet(
             descriptorString = walletConfig.descriptor,
@@ -47,7 +51,7 @@ fun Application.module() {
             syncType = walletConfig.syncType.toSyncType(),
             faucetAmount = faucetConfig.amount,
             versionName = faucetConfig.versionName,
-            dbFilePath = dbFilePath,
+            dataDir = dataDir,
         )
 
     install(ContentNegotiation) {
