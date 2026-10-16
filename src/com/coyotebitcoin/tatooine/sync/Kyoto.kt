@@ -97,7 +97,11 @@ private constructor(
 
         fun getInstance(): Kyoto = instance ?: throw KyotoNotInitialized()
 
-        fun create(wallet: Wallet, dataDir: String, network: Network): Kyoto {
+        /**
+         * @param recover true for a newly created wallet, which needs a full recovery scan from genesis; false for an
+         *   existing wallet, which only syncs from its last stored checkpoint.
+         */
+        fun create(wallet: Wallet, dataDir: String, network: Network, recover: Boolean): Kyoto {
             // TODO: Enable more networks and better peer discovery system
             val peers: List<Peer> =
                 when (network) {
@@ -111,7 +115,12 @@ private constructor(
                         listOf()
                     }
                 }
-            val scanType = ScanType.Recovery(usedScriptIndex = 100u, checkpoint = RecoveryPoint.GenesisBlock)
+            val scanType =
+                if (recover) {
+                    ScanType.Recovery(usedScriptIndex = 100u, checkpoint = RecoveryPoint.GenesisBlock)
+                } else {
+                    ScanType.Sync
+                }
 
             val (client, node) =
                 CbfBuilder().dataDir(dataDir).peers(peers).connections(1u).scanType(scanType).build(wallet)

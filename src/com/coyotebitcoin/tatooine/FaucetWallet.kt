@@ -25,6 +25,7 @@ import org.bitcoindevkit.Descriptor
 import org.bitcoindevkit.ElectrumClient
 import org.bitcoindevkit.FeeRate
 import org.bitcoindevkit.KeychainKind
+import org.bitcoindevkit.LoadWithPersistException
 import org.bitcoindevkit.Network
 import org.bitcoindevkit.NetworkKind
 import org.bitcoindevkit.Persister
@@ -69,14 +70,29 @@ class FaucetWallet(
     private val kyotoCoroutineScope: CoroutineScope = CoroutineScope(Dispatchers.IO)
 
     init {
+        // Load the existing wallet from the database, or create it on first startup
+        var isNewWallet = false
         wallet =
-            BdkWallet.createSingle(
-                descriptor = descriptor,
-                network = network,
-                persister = db,
-                lookahead = 1000u,
-            )
-        val fundingAddress = wallet.revealAddressesTo(KeychainKind.EXTERNAL, 0u).first()
+            try {
+                BdkWallet.loadSingle(descriptor = descriptor, persister = db, lookahead = 1000u).also {
+                    logger.info { "Loaded existing wallet" }
+                }
+            } catch (e: LoadWithPersistException.CouldNotLoad) {
+                logger.info { "No existing wallet found, creating a new one" }
+                isNewWallet = true
+                BdkWallet.createSingle(
+                    descriptor = descriptor,
+                    network = network,
+                    persister = db,
+                    lookahead = 1000u,
+                )
+            }
+
+        // The faucet is funded at the external address at index 0. Revealing it ensures it is part
+        // of the scripts checked on sync; this returns an empty list if it is already revealed.
+        wallet.revealAddressesTo(KeychainKind.EXTERNAL, 0u)
+        wallet.persist(db)
+        val fundingAddress = wallet.peekAddress(KeychainKind.EXTERNAL, 0u)
         logger.info {
             "Funding address: ${fundingAddress.address} at index ${fundingAddress.index}"
         }
@@ -84,7 +100,11 @@ class FaucetWallet(
         if (syncType == SyncType.CBF) {
             val cbfDataDir = dataDir.resolve("cbfdata").toString()
             logger.info { "Storing CBF data at $cbfDataDir" }
-            this.kyoto = Kyoto.create(wallet, cbfDataDir, network)
+            logger.info {
+                if (isNewWallet) "Kyoto will recover the wallet from genesis"
+                else "Kyoto will sync from the wallet's last checkpoint"
+            }
+            this.kyoto = Kyoto.create(wallet, cbfDataDir, network, recover = isNewWallet)
         }
         logger.info { "Wallet initialized" }
 
