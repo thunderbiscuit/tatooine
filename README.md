@@ -25,18 +25,18 @@ just package
 This will output a jar in `./build/tasks/_tatooine_executableJarJvm/tatooine-jvm-executable.jar` which you can start anywhere you like using
 
 ```shell
-java -jar tatooine-jvm-executable.jar
+java -jar tatooine-jvm-executable.jar -config=production.yaml
 ```
 
-## Use a custom config file
+## Config file
 
-By default, the faucet will run using the configurations set in the `resources/application.yaml` file at the time the project was compiled. Modifying that file and recompiling every time you want a configuration change is not ideal. 
+The faucet requires a config file, passed with the `-config` argument; no config is bundled in the jar, and the faucet will refuse to start without one. Keep a separate config file for each setting you run in (development, production, etc.).
 
-A better way is to write different configuration files and simply provide their location when launching the service in different settings (development, production, etc.).
-
-You achieve this by adding a `-config` argument to the call when launching the service. For example, if you create a file called `production.yaml`, you can then launch the service using:
+The `dev.yaml` file at the root of the project is a config for a local regtest setup with an Electrum client, and is the one used by `just run`. Use it as a starting point for your own:
 
 ```shell
+cp dev.yaml production.yaml
+# edit production.yaml, then
 java -jar tatooine-jvm-executable.jar -config=production.yaml
 ```
 

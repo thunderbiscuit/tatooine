@@ -14,9 +14,9 @@ build:
 test:
   ./kotlin test
 
-[doc("Run the app.")]
+[doc("Run the app with the local regtest config.")]
 run:
-  ./kotlin run
+  ./kotlin run -- -config=dev.yaml
 
 [doc("Package the app and place it at the root.")]
 package:

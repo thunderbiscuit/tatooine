@@ -20,10 +20,26 @@ import io.ktor.server.netty.EngineMain
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.system.exitProcess
 
 private val logger = KotlinLogging.logger {}
 
 fun main(args: Array<String>) {
+    // A config file is required. Ktor silently ignores a -config file that doesn't exist and fails
+    // later with a misleading error about a missing port, so we check the paths ourselves first.
+    val configPaths =
+        args.filter { it.startsWith("-config=") }.map { Path.of(it.removePrefix("-config=")).toAbsolutePath() }
+    if (configPaths.isEmpty()) {
+        logger.error { "No config file given, start the faucet with -config=<path>" }
+        exitProcess(1)
+    }
+    configPaths
+        .firstOrNull { !Files.isRegularFile(it) }
+        ?.let { missing ->
+            logger.error { "Config file not found: $missing" }
+            exitProcess(1)
+        }
+
     EngineMain.main(args)
 }
 
